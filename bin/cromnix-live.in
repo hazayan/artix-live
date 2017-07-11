@@ -15,49 +15,49 @@ load_live_config "${SYSCONFDIR}/live.conf" || load_live_config "${DATADIR}/live.
 
 livetimer=$(get_timer_ms)
 detect_desktop_env
-echo "Detected ${default_desktop_executable} ${default_desktop_file}: $(elapsed_time_ms ${livetimer})ms" >> /var/log/manjaro-live.log
+echo "Detected ${default_desktop_executable} ${default_desktop_file}: $(elapsed_time_ms ${livetimer})ms" >> /var/log/cromnix-live.log
 
 livetimer=$(get_timer_ms)
 CONSOLEFONT="$(kernel_cmdline vconsole.font)"
 CONSOLEMAP="$(kernel_cmdline vconsole.font.map)"
 arch=$(uname -m)
-echo "Got consolefont and arch $arch: $(elapsed_time_ms ${livetimer})ms" >> /var/log/manjaro-live.log
+echo "Got consolefont and arch $arch: $(elapsed_time_ms ${livetimer})ms" >> /var/log/cromnix-live.log
 
 # Activate swap
 livetimer=$(get_timer_ms)
 configure_swap
-echo "Activated swap and added to fstab: $(elapsed_time_ms ${livetimer})ms" >> /var/log/manjaro-live.log
+echo "Activated swap and added to fstab: $(elapsed_time_ms ${livetimer})ms" >> /var/log/cromnix-live.log
 
 livetimer=$(get_timer_ms)
 configure_language
-echo "Finished localization: $(elapsed_time_ms ${livetimer})ms" >> /var/log/manjaro-live.log
+echo "Finished localization: $(elapsed_time_ms ${livetimer})ms" >> /var/log/cromnix-live.log
 
 livetimer=$(get_timer_ms)
 configure_user
-echo "Created user ${username} with password ${password}: $(elapsed_time_ms ${livetimer})ms" >> /var/log/manjaro-live.log
+echo "Created user ${username} with password ${password}: $(elapsed_time_ms ${livetimer})ms" >> /var/log/cromnix-live.log
 
 livetimer=$(get_timer_ms)
 configure_sudoers_d
-echo "Configured sudoers: $(elapsed_time_ms ${livetimer})ms" >> /var/log/manjaro-live.log
+echo "Configured sudoers: $(elapsed_time_ms ${livetimer})ms" >> /var/log/cromnix-live.log
 
 livetimer=$(get_timer_ms)
 configure_machine_id
-echo "Configured machine-id: $(elapsed_time_ms ${livetimer})ms" >> /var/log/manjaro-live.log
+echo "Configured machine-id: $(elapsed_time_ms ${livetimer})ms" >> /var/log/cromnix-live.log
 
 livetimer=$(get_timer_ms)
 configure_accountsservice "${username}"
-echo "Configured accountsservice: $(elapsed_time_ms ${livetimer})ms" >> /var/log/manjaro-live.log
+echo "Configured accountsservice: $(elapsed_time_ms ${livetimer})ms" >> /var/log/cromnix-live.log
 
 livetimer=$(get_timer_ms)
 configure_displaymanager
-echo "Configured displaymanager: $(elapsed_time_ms ${livetimer})ms" >> /var/log/manjaro-live.log
+echo "Configured displaymanager: $(elapsed_time_ms ${livetimer})ms" >> /var/log/cromnix-live.log
 
 livetimer=$(get_timer_ms)
 configure_user_root /
-echo "Configured root user: $(elapsed_time_ms ${livetimer})ms" >> /var/log/manjaro-live.log
+echo "Configured root user: $(elapsed_time_ms ${livetimer})ms" >> /var/log/cromnix-live.log
 
 if [[ -f /usr/bin/samba ]];then
     livetimer=$(get_timer_ms)
     configure_samba
-    echo "Configured samba: $(elapsed_time_ms ${livetimer})ms" >> /var/log/manjaro-live.log
+    echo "Configured samba: $(elapsed_time_ms ${livetimer})ms" >> /var/log/cromnix-live.log
 fi

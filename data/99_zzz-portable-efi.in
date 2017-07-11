@@ -16,8 +16,8 @@
 
 set -e
 
-MT_EFI_STANDALONE=""
-MT_EFI_PORTABLE_PATH="/boot/efi/EFI/BOOT"
+AT_EFI_STANDALONE=""
+AT_EFI_PORTABLE_PATH="/boot/efi/EFI/BOOT"
 
 # override tool behaviour through /etc/default/grub2-fll-standalone
 if [ -r /etc/default/grub2-portable-efi ]; then
@@ -26,10 +26,10 @@ fi
 
 patt='[[:space:]]-o[[:space:]]\+/boot/grub/grub.cfg'
 # do nothing if disabled or grub-mkconfig is generating /boot/grub/grub.cfg
-( [ "${MT_EFI_STANDALONE}" != "disable" ] && \
+( [ "${AT_EFI_STANDALONE}" != "disable" ] && \
 	ps x | grep 'grub-mkconfig[[:space:]]' | grep -q -e "${patt}[[:space:]]" -e "${patt}$" ) || exit
 
-beeb="${MT_EFI_PORTABLE_PATH}"
+beeb="${AT_EFI_PORTABLE_PATH}"
 if [ -e "${beeb}" ]; then
 	# do not do anything to a beeb we didn't create
 	[ ! -e "${beeb}/fullstory" ] && exit

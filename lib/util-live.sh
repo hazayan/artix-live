@@ -52,17 +52,15 @@ load_live_config(){
 
 	[[ -z ${autologin} ]] && autologin=true
 
-	[[ -z ${username} ]] && username="manjaro"
+	[[ -z ${username} ]] && username="cromnix"
 
-	[[ -z ${password} ]] && password="manjaro"
+	[[ -z ${password} ]] && password="cromnix"
 
 	[[ -z ${addgroups} ]] && addgroups=""
 
 	[[ -z ${login_shell} ]] && login_shell="/bin/bash"
 
-	[[ -z ${smb_workgroup} ]] && smb_workgroup="Manjaro"
-
-	echo "Loaded ${live_conf}: $(elapsed_time_ms ${livetimer})ms" >> /var/log/manjaro-live.log
+	echo "Loaded ${live_conf}: $(elapsed_time_ms ${livetimer})ms" >> /var/log/cromnix-live.log
 
 	return 0
 }
@@ -285,19 +283,19 @@ configure_language(){
     loadkeys "${keytable}"
 
     locale-gen ${lang}
-    echo "Configured language: ${lang}" >> /var/log/manjaro-live.log
-    echo "Configured keymap: ${keytable}" >> /var/log/manjaro-live.log
-    echo "Configured timezone: ${timezone}" >> /var/log/manjaro-live.log
+    echo "Configured language: ${lang}" >> /var/log/cromnix-live.log
+    echo "Configured keymap: ${keytable}" >> /var/log/cromnix-live.log
+    echo "Configured timezone: ${timezone}" >> /var/log/cromnix-live.log
 }
 
 configure_machine_id(){
 	if [ -e "/etc/machine-id" ] ; then
 		# delete existing machine-id
-		echo "Deleting existing machine-id ..." >> /var/log/manjaro-live.log
+		echo "Deleting existing machine-id ..." >> /var/log/cromnix-live.log
 		rm /etc/machine-id
 	fi
 	# set unique machine-id
-	echo "Setting machine-id ..." >> /var/log/manjaro-live.log
+	echo "Setting machine-id ..." >> /var/log/cromnix-live.log
 	dbus-uuidgen --ensure=/etc/machine-id
 	ln -sf /etc/machine-id /var/lib/dbus/machine-id
 }
@@ -305,7 +303,6 @@ configure_machine_id(){
 configure_sudoers_d(){
 	echo "%wheel  ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/g_wheel
 	echo "root ALL=(ALL) ALL"  > /etc/sudoers.d/u_root
-	#echo "${username} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/u_live
 }
 
 configure_swap(){
@@ -319,9 +316,4 @@ configure_user_root(){
 	# set up root password
 	echo "root:${password}" | chroot $1 chpasswd
 	cp /etc/skel/.{bash_profile,bashrc,bash_logout} /root/
-	[[ -f /etc/skel/.extend.bashrc ]] && cp /etc/skel/.extend.bashrc /root/
-	[[ -f /etc/skel/.gtkrc-2.0 ]] && cp /etc/skel/.gtkrc-2.0 /root/
-	if [[ -d /etc/skel/.config ]]; then
-		cp -a /etc/skel/.config /root/
-	fi
 }

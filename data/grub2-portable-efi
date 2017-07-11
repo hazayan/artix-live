@@ -8,8 +8,8 @@
 
 # specify is this should be disabled (set to "disable")
 # default:
-#MT_EFI_STANDALONE=""
+#AT_EFI_STANDALONE=""
 
 # specify where to install the portable efi
 # default: /boot/efi/EFI/BOOT
-#MT_EFI_PORTABLE_PATH="/boot/efi/EFI/BOOT"
+#AT_EFI_PORTABLE_PATH="/boot/efi/EFI/BOOT"
