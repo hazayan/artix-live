@@ -1,5 +1,5 @@
 #!/usr/bin/openrc-run
-# Copyright 2015 artoo (flower_of_life@gmx.net)
+# Copyright 2015 artoo (artoo@cromnix.org)
 # Distributed under the terms of the GNU General Public License v2
 
 target_dir=/etc/pacman.d/gnupg

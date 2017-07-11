@@ -60,7 +60,7 @@ load_live_config(){
 
 	[[ -z ${login_shell} ]] && login_shell="/bin/bash"
 
-	echo "Loaded ${live_conf}: $(elapsed_time_ms ${livetimer})ms" >> /var/log/cromnix-live.log
+	echo "Loaded ${live_conf}: $(elapsed_time_ms ${livetimer})ms" >> "${LOGFILE}"
 
 	return 0
 }
@@ -126,28 +126,12 @@ configure_accountsservice(){
 	sed -i -e 's/^.*minimum-vt=.*/minimum-vt=7/' /etc/lightdm/lightdm.conf
  }
 
-# set_sddm_elogind(){
-#     gpasswd -a sddm video &> /dev/null
-# }
-
-set_pam(){
-    for conf in /etc/pam.d/*;do
-        sed -e 's|systemd.so|elogind.so|g' -i $conf
-    done
-}
-
-configure_samba(){
-    local conf=/etc/samba/smb.conf
-    cp /etc/samba/smb.conf.default $conf
-    sed -e "s|^.*workgroup =.*|workgroup = ${smb_workgroup}|" -i $conf
-}
-
 configure_displaymanager(){
 	# Try to detect desktop environment
 	# Configure display manager
 	if [[ -f /usr/bin/lightdm ]];then
 		groupadd -r autologin
-		[[ -d /run/openrc ]] && set_lightdm_vt
+		set_lightdm_vt
 		set_lightdm_greeter
 		if $(is_valid_de); then
 			sed -i -e "s/^.*user-session=.*/user-session=$default_desktop_file/" /etc/lightdm/lightdm.conf
@@ -182,7 +166,6 @@ configure_displaymanager(){
 			sed -i -e "s/^.*autologin=.*/autologin=${username}/" /etc/lxdm/lxdm.conf
 		fi
 	fi
-	[[ -d /run/openrc ]] && set_pam
 }
 
 gen_pw(){
@@ -283,19 +266,19 @@ configure_language(){
     loadkeys "${keytable}"
 
     locale-gen ${lang}
-    echo "Configured language: ${lang}" >> /var/log/cromnix-live.log
-    echo "Configured keymap: ${keytable}" >> /var/log/cromnix-live.log
-    echo "Configured timezone: ${timezone}" >> /var/log/cromnix-live.log
+    echo "Configured language: ${lang}" >> "${LOGFILE}"
+    echo "Configured keymap: ${keytable}" >> "${LOGFILE}"
+    echo "Configured timezone: ${timezone}" >> "${LOGFILE}"
 }
 
 configure_machine_id(){
 	if [ -e "/etc/machine-id" ] ; then
 		# delete existing machine-id
-		echo "Deleting existing machine-id ..." >> /var/log/cromnix-live.log
+		echo "Deleting existing machine-id ..." >> "${LOGFILE}"
 		rm /etc/machine-id
 	fi
 	# set unique machine-id
-	echo "Setting machine-id ..." >> /var/log/cromnix-live.log
+	echo "Setting machine-id ..." >> "${LOGFILE}"
 	dbus-uuidgen --ensure=/etc/machine-id
 	ln -sf /etc/machine-id /var/lib/dbus/machine-id
 }
