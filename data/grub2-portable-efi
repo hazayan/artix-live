@@ -1,0 +1,15 @@
+# Defaults for grub2-portable-efi update-grub helper
+# sourced by grub2's update-grub
+# installed at /etc/default/grub2-portable-efi by the maintainer scripts
+
+#
+# This is a POSIX shell fragment
+#
+
+# specify is this should be disabled (set to "disable")
+# default:
+#AT_EFI_STANDALONE=""
+
+# specify where to install the portable efi
+# default: /boot/efi/EFI/BOOT
+#AT_EFI_PORTABLE_PATH="/boot/efi/EFI/BOOT"
