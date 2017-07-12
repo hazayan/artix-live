@@ -9,8 +9,7 @@ depend() {
 }
 
 start() {
-	ebegin "Starting cromnix live script"
-	# run the cromnix live script
-	/usr/bin/cromnix-live
+	ebegin "Starting artix live script"
+	/usr/bin/artix-live
 	eend $?
 }

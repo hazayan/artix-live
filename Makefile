@@ -4,12 +4,7 @@ PREFIX = /usr/local
 SYSCONFDIR = /etc
 
 BIN = \
-	bin/cromnix-live
-
-XBIN = \
-	bin/desktop-items \
-	bin/disable-dpms \
-	bin/pulseaudio-ctl-normal
+	bin/artix-live
 
 LIBS = $(wildcard lib/*.sh)
 
@@ -20,7 +15,7 @@ SHARED = \
 RC = \
 	data/rc/gnupg-mount \
 	data/rc/pacman-init \
-	data/rc/cromnix-live
+	data/rc/artix-live
 
 GRUB_DEFAULT = \
 	data/grub2-portable-efi
@@ -42,7 +37,7 @@ edit = sed -e "s|@datadir[@]|$(DESTDIR)$(PREFIX)/share/artools|g" \
 	@chmod +x "$@"
 
 clean:
-	rm -f $(BIN) $(RC) $(XBIN) ${GRUB_D}
+	rm -f $(BIN) $(RC) ${GRUB_D}
 
 install_base:
 	install -dm0755 $(DESTDIR)$(PREFIX)/bin
