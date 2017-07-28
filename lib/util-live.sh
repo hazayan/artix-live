@@ -58,8 +58,6 @@ load_live_config(){
 
 	[[ -z ${addgroups} ]] && addgroups=""
 
-	[[ -z ${login_shell} ]] && login_shell="/bin/bash"
-
 	echo "Loaded ${live_conf}: $(elapsed_time_ms ${livetimer})ms" >> "${LOGFILE}"
 
 	return 0
@@ -175,9 +173,9 @@ gen_pw(){
 configure_user(){
 	# set up user and password
 	if [[ -n ${password} ]];then
-		useradd -m -G ${addgroups} -p $(gen_pw) -s ${login_shell} ${username}
+		useradd -m -G ${addgroups} -p $(gen_pw) -s /bin/bash ${username}
 	else
-		useradd -m -G ${addgroups} -s ${login_shell} ${username}
+		useradd -m -G ${addgroups} -s /bin/bash ${username}
 	fi
 }
 
@@ -271,17 +269,17 @@ configure_language(){
     echo "Configured timezone: ${timezone}" >> "${LOGFILE}"
 }
 
-configure_machine_id(){
-	if [ -e "/etc/machine-id" ] ; then
-		# delete existing machine-id
-		echo "Deleting existing machine-id ..." >> "${LOGFILE}"
-		rm /etc/machine-id
-	fi
-	# set unique machine-id
-	echo "Setting machine-id ..." >> "${LOGFILE}"
-	dbus-uuidgen --ensure=/etc/machine-id
-	ln -sf /etc/machine-id /var/lib/dbus/machine-id
-}
+# configure_machine_id(){
+# 	if [ -e "/etc/machine-id" ] ; then
+# 		# delete existing machine-id
+# 		echo "Deleting existing machine-id ..." >> "${LOGFILE}"
+# 		rm /etc/machine-id
+# 	fi
+# 	# set unique machine-id
+# 	echo "Setting machine-id ..." >> "${LOGFILE}"
+# 	dbus-uuidgen --ensure=/etc/machine-id
+# 	ln -sf /etc/machine-id /var/lib/dbus/machine-id
+# }
 
 configure_sudoers_d(){
 	echo "%wheel  ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/g_wheel
