@@ -269,17 +269,17 @@ configure_language(){
     echo "Configured timezone: ${timezone}" >> "${LOGFILE}"
 }
 
-configure_machine_id(){
-	if [ -e "/etc/machine-id" ] ; then
-		# delete existing machine-id
-		echo "Deleting existing machine-id ..." >> "${LOGFILE}"
-		rm /etc/machine-id
-	fi
-	# set unique machine-id
-	echo "Setting machine-id ..." >> "${LOGFILE}"
-	dbus-uuidgen --ensure=/etc/machine-id
-	ln -sf /etc/machine-id /var/lib/dbus/machine-id
-}
+# configure_machine_id(){
+# 	if [ -e "/etc/machine-id" ] ; then
+# 		# delete existing machine-id
+# 		echo "Deleting existing machine-id ..." >> "${LOGFILE}"
+# 		rm /etc/machine-id
+# 	fi
+# 	# set unique machine-id
+# 	echo "Setting machine-id ..." >> "${LOGFILE}"
+# 	dbus-uuidgen --ensure=/etc/machine-id
+# 	ln -sf /etc/machine-id /var/lib/dbus/machine-id
+# }
 
 configure_sudoers_d(){
 	echo "%wheel  ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/g_wheel

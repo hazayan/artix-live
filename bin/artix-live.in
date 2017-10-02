@@ -41,9 +41,9 @@ livetimer=$(get_timer_ms)
 configure_sudoers_d
 echo "Configured sudoers: $(elapsed_time_ms ${livetimer})ms" >> "${LOGFILE}"
 
-livetimer=$(get_timer_ms)
-configure_machine_id
-echo "Configured machine-id: $(elapsed_time_ms ${livetimer})ms" >> "${LOGFILE}"
+# livetimer=$(get_timer_ms)
+# configure_machine_id
+# echo "Configured machine-id: $(elapsed_time_ms ${livetimer})ms" >> "${LOGFILE}"
 
 livetimer=$(get_timer_ms)
 configure_accountsservice "${username}"
