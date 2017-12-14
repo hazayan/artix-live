@@ -54,5 +54,9 @@ configure_displaymanager
 echo "Configured displaymanager: $(elapsed_time_ms ${livetimer})ms" >> "${LOGFILE}"
 
 livetimer=$(get_timer_ms)
+configure_calamares
+echo "Configured calamares unpack ${unpack} $(elapsed_time_ms ${livetimer})ms" >> "${LOGFILE}"
+
+livetimer=$(get_timer_ms)
 configure_user_root /
 echo "Configured root user: $(elapsed_time_ms ${livetimer})ms" >> "${LOGFILE}"

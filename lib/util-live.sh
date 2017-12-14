@@ -33,6 +33,10 @@ get_tz(){
 	echo $(kernel_cmdline tz)
 }
 
+get_cal_mode(){
+	echo $(kernel_cmdline unpack)
+}
+
 get_timer_ms(){
 	echo $(date +%s%3N)
 }
@@ -269,17 +273,31 @@ configure_language(){
     echo "Configured timezone: ${timezone}" >> "${LOGFILE}"
 }
 
-# configure_machine_id(){
-# 	if [ -e "/etc/machine-id" ] ; then
-# 		# delete existing machine-id
-# 		echo "Deleting existing machine-id ..." >> "${LOGFILE}"
-# 		rm /etc/machine-id
-# 	fi
-# 	# set unique machine-id
-# 	echo "Setting machine-id ..." >> "${LOGFILE}"
-# 	dbus-uuidgen --ensure=/etc/machine-id
-# 	ln -sf /etc/machine-id /var/lib/dbus/machine-id
-# }
+write_unpack_conf(){
+    local conf="/etc/calamares/modules/unpackfs.conf"
+    echo "---" > "$conf"
+    echo "unpack:" >> "$conf"
+    echo "    - source: \"/run/miso/bootmnt/artix/$(uname -m)/rootfs.sfs\"" >> "$conf"
+    echo "      sourcefs: \"squashfs\"" >> "$conf"
+    echo "      destination: \"\"" >> "$conf"
+    echo "    - source: \"/run/miso/bootmnt/artix/$(uname -m)/desktopfs.sfs\"" >> "$conf"
+    echo "      sourcefs: \"squashfs\"" >> "$conf"
+    echo "      destination: \"\"" >> "$conf"
+}
+
+configure_calamares(){
+    if [[ -f /usr/bin/calamares ]];then
+        unpack=$(get_cal_mode)
+        if [[ "${unpack}" == 'yes' ]];then
+            sed -e "/- netinstall/d" \
+                -e "s|- chrootcfg|- unpackfs|" -i /etc/calamares/settings.conf
+
+            sed -e '$ d' -i /etc/calamares/modules/welcome.conf
+
+            write_unpack_conf
+        fi
+    fi
+}
 
 configure_sudoers_d(){
 	echo "%wheel  ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/g_wheel
