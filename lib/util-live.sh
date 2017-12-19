@@ -34,7 +34,7 @@ get_tz(){
 }
 
 get_cal_mode(){
-    echo $(kernel_cmdline unpack)
+    echo $(kernel_cmdline netinstall)
 }
 
 get_timer_ms(){
@@ -267,28 +267,14 @@ configure_language(){
     echo "Configured timezone: ${timezone}" >> "${LOGFILE}"
 }
 
-write_unpack_conf(){
-    local conf="/etc/calamares/modules/unpackfs.conf"
-    echo "---" > "$conf"
-    echo "unpack:" >> "$conf"
-    echo "    - source: \"/run/artix/bootmnt/artix/$(uname -m)/rootfs.sfs\"" >> "$conf"
-    echo "      sourcefs: \"squashfs\"" >> "$conf"
-    echo "      destination: \"\"" >> "$conf"
-    echo "    - source: \"/run/artix/bootmnt/artix/$(uname -m)/desktopfs.sfs\"" >> "$conf"
-    echo "      sourcefs: \"squashfs\"" >> "$conf"
-    echo "      destination: \"\"" >> "$conf"
-}
-
 configure_calamares(){
     if [[ -f /usr/bin/calamares ]];then
-        unpack=$(get_cal_mode)
-        if [[ "${unpack}" == 'yes' ]];then
+        netinstall=$(get_cal_mode)
+        if [[ "${netinstall}" == 'no' ]];then
             sed -e "/- netinstall/d" \
                 -e "s|- chrootcfg|- unpackfs|" -i /etc/calamares/settings.conf
 
             sed -e '$ d' -i /etc/calamares/modules/welcome.conf
-
-            write_unpack_conf
         fi
     fi
 }
