@@ -79,7 +79,7 @@ is_valid_de(){
 load_desktop_map(){
     local _space="s| ||g" _clean=':a;N;$!ba;s/\n/ /g' _com_rm="s|#.*||g" \
         file=${DATADIR}/desktop.map
-    local desktop_map=$(sed "$_com_rm" "$file" | sed "$_space"  sed "$_clean")
+    local desktop_map=$(sed "$_com_rm" "$file" | sed "$_space" | sed "$_clean")
     echo ${desktop_map}
 }
 
