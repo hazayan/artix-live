@@ -17,13 +17,15 @@ RC = \
 	data/rc/pacman-init \
 	data/rc/artix-live
 
+RUNIT_SV = $(wildcard data/runit/*.sh)
+
 GRUB_DEFAULT = \
 	data/grub2-portable-efi
 
 GRUB_D = \
 	data/99_zzz-portable-efi
 
-all: $(BIN) $(RC) $(XBIN) ${GRUB_D}
+all: $(BIN) $(RC) $(RUNIT_SV) $(XBIN) ${GRUB_D}
 
 edit = sed -e "s|@datadir[@]|$(DESTDIR)$(PREFIX)/share/artools|g" \
 	-e "s|@sysconfdir[@]|$(DESTDIR)$(SYSCONFDIR)/artools|g" \
@@ -53,6 +55,10 @@ install_rc:
 	install -dm0755 $(DESTDIR)$(SYSCONFDIR)/init.d
 	install -m0755 ${RC} $(DESTDIR)$(SYSCONFDIR)/init.d
 
+install_runit:
+	install -dm0755 $(DESTDIR)$(SYSCONFDIR)/runit/core-services
+	install -m0755 ${RUNIT_SV} $(DESTDIR)$(SYSCONFDIR)/runit/core-services
+
 install_portable_efi:
 	install -dm0755 $(DESTDIR)$(SYSCONFDIR)/default
 	install -m0755 $(GRUB_DEFAULT) $(DESTDIR)$(SYSCONFDIR)/default
@@ -72,9 +78,12 @@ uninstall_portable_efi:
 uninstall_rc:
 	for f in ${RC}; do rm -f $(DESTDIR)$(SYSCONFDIR)/init.d/$$f; done
 
+uninstall_runit:
+	for f in ${RUNIT_SV}; do rm -f $(DESTDIR)$(SYSCONFDIR)/runit/sv/$$f; done
+
 install: install_base install_rc install_portable_efi
 
-uninstall: uninstall_base uninstall_rc uninstall_portable_efi
+uninstall: uninstall_base uninstall_rc uninstall_runit uninstall_portable_efi
 
 dist:
 	git archive --format=tar --prefix=live-services-$(Version)/ $(Version) | gzip -9 > live-services-$(Version).tar.gz
