@@ -17,7 +17,11 @@ RC = \
 	data/rc/pacman-init \
 	data/rc/artix-live
 
-RUNIT_SV = $(wildcard data/runit/*.sh)
+RUNIT_CORE = \
+	data/runit/89-artix-live.sh
+
+RUNIT_SV = \
+	data/runit/pacman-init.run
 
 GRUB_DEFAULT = \
 	data/grub2-portable-efi
@@ -57,7 +61,9 @@ install_rc:
 
 install_runit:
 	install -dm0755 $(DESTDIR)$(SYSCONFDIR)/runit/core-services
-	install -m0755 ${RUNIT_SV} $(DESTDIR)$(SYSCONFDIR)/runit/core-services
+	install -dm0755 $(DESTDIR)$(SYSCONFDIR)/sv/pacman-init
+	install -m0755 ${RUNIT_CORE} $(DESTDIR)$(SYSCONFDIR)/runit/core-services
+	install -m0755 ${RUNIT_SV} $(DESTDIR)$(SYSCONFDIR)/sv/pacman-init/run
 
 install_portable_efi:
 	install -dm0755 $(DESTDIR)$(SYSCONFDIR)/default
