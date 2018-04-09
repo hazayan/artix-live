@@ -63,7 +63,7 @@ install_runit:
 	install -dm0755 $(DESTDIR)$(SYSCONFDIR)/runit/core-services
 	install -dm0755 $(DESTDIR)$(SYSCONFDIR)/sv/pacman-init
 	install -m0755 ${RUNIT_CORE} $(DESTDIR)$(SYSCONFDIR)/runit/core-services
-	install -m0755 ${RUNIT_SV} $(DESTDIR)$(SYSCONFDIR)/sv/pacman-init/run
+	install -m0755 ${RUNIT_SV} $(DESTDIR)$(SYSCONFDIR)/runit/sv/pacman-init/run
 
 install_portable_efi:
 	install -dm0755 $(DESTDIR)$(SYSCONFDIR)/default
