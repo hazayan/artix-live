@@ -1,13 +1,23 @@
-VERSION=0.1
+VERSION = 0.5
 
 PKG = live-services
-PREFIX = /usr/local
+TOOLS = artools
+
 SYSCONFDIR = /etc
+ifdef PREFIX
+PREFIX = /usr/local
+endif
+BINDIR = $(PREFIX)/bin
+LIBDIR = $(PREFIX)/lib
+DATADIR = $(PREFIX)/share
 
 FMODE = -m0644
 DMODE = -dm0755
 BMODE = -m0755
 RM = rm -f
+M4 = m4 -P
+CHAW = chmod a-w
+CHX = chmod +x
 
 BIN = \
 	bin/artix-live
@@ -35,41 +45,41 @@ GRUB_DEFAULT = \
 GRUB_D = \
 	data/99_zzz-portable-efi
 
-all: $(BIN) $(RC) $(RUNIT_SV) $(XBIN) ${GRUB_D}
+all: $(BIN) $(RC) $(RUNIT_SV) $(XBIN) $(GRUB_D)
 
-EDIT = sed -e "s|@datadir[@]|$(DESTDIR)$(PREFIX)/share/artools|g" \
-	-e "s|@sysconfdir[@]|$(DESTDIR)$(SYSCONFDIR)/artools|g" \
-	-e "s|@libdir[@]|$(DESTDIR)$(PREFIX)/lib/artools|g"
+EDIT = sed -e "s|@datadir[@]|$(DATADIR)$(TOOLS)|g" \
+	-e "s|@sysconfdir[@]|$(SYSCONFDIR)/$(TOOLS)|g" \
+	-e "s|@libdir[@]|$(LIBDIR)/$(TOOLS)|g"
 
 %: %.in Makefile
 	@echo "GEN $@"
 	@$(RM) "$@"
-	@m4 -P $@.in | $(EDIT) >$@
-	@chmod a-w "$@"
-	@chmod +x "$@"
+	@$(M4) $@.in | $(EDIT) >$@
+	@$(CHAW) "$@"
+	@$(CHX) "$@"
 
 clean:
-	$(RM) $(BIN) $(RC) ${GRUB_D}
+	$(RM) $(BIN) $(RC) $(GRUB_D)
 
 install_base:
-	install $(DMODE) $(DESTDIR)$(PREFIX)/bin
-	install $(BMODE) ${BIN} $(DESTDIR)$(PREFIX)/bin
+	install $(DMODE) $(DESTDIR)$(BINDIR)
+	install $(BMODE) $(BIN) $(DESTDIR)$(BINDIR)
 
-	install $(DMODE) $(DESTDIR)$(PREFIX)/lib/artools
-	install $(FMODE) ${LIBS} $(DESTDIR)$(PREFIX)/lib/artools
+	install $(DMODE) $(DESTDIR)$(LIBDIR)/$(TOOLS)
+	install $(FMODE) $(LIBS) $(DESTDIR)$(LIBDIR)/$(TOOLS)
 
-	install $(DMODE) $(DESTDIR)$(PREFIX)/share/artools
-	install $(FMODE) ${SHARED} $(DESTDIR)$(PREFIX)/share/artools
+	install $(DMODE) $(DESTDIR)$(DATADIR)$(TOOLS)
+	install $(FMODE) $(SHARED) $(DESTDIR)$(DATADIR)$(TOOLS)
 
 install_rc:
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/init.d
-	install $(BMODE) ${RC} $(DESTDIR)$(SYSCONFDIR)/init.d
+	install $(BMODE) $(RC) $(DESTDIR)$(SYSCONFDIR)/init.d
 
 install_runit:
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/runit/core-services
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/sv/pacman-init
-	install $(BMODE) ${RUNIT_CORE} $(DESTDIR)$(SYSCONFDIR)/runit/core-services
-	install $(BMODE) ${RUNIT_SV} $(DESTDIR)$(SYSCONFDIR)/runit/sv/pacman-init/run
+	install $(BMODE) $(RUNIT_CORE) $(DESTDIR)$(SYSCONFDIR)/runit/core-services
+	install $(BMODE) $(RUNIT_SV) $(DESTDIR)$(SYSCONFDIR)/runit/sv/pacman-init/run
 
 install_portable_efi:
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/default
@@ -79,19 +89,19 @@ install_portable_efi:
 	install $(BMODE) $(GRUB_D) $(DESTDIR)$(SYSCONFDIR)/grub.d
 
 uninstall_base:
-	for f in $(notdir ${BIN}); do $(RM) $(DESTDIR)$(PREFIX)/bin/$$f; done
-	for f in $(notdir ${SHARED}); do $(RM) $(DESTDIR)$(PREFIX)/share/artools/$$f; done
-	for f in $(notdir ${LIBS}); do $(RM) $(DESTDIR)$(PREFIX)/lib/artools/$$f; done
+	for f in $(notdir $(BIN)); do $(RM) $(DESTDIR)$(PREFIX)/bin/$$f; done
+	for f in $(notdir $(SHARED)); do $(RM) $(DESTDIR)$(DATADIR)$(TOOLS)/$$f; done
+	for f in $(notdir $(LIBS)); do $(RM) $(DESTDIR)$(LIBDIR)/$(TOOLS)/$$f; done
 
 uninstall_portable_efi:
-	for f in $(notdir ${GRUB_DEFAULT}); do $(RM) $(DESTDIR)$(SYSCONFDIR)/default/$$f; done
-	for f in $(notdir ${GRUB_D}); do $(RM) $(DESTDIR)$(SYSCONFDIR)/grub.d/$$f; done
+	for f in $(notdir $(GRUB_DEFAULT)); do $(RM) $(DESTDIR)$(SYSCONFDIR)/default/$$f; done
+	for f in $(notdir $(GRUB_D)); do $(RM) $(DESTDIR)$(SYSCONFDIR)/grub.d/$$f; done
 
 uninstall_rc:
-	for f in $(notdir ${RC}); do $(RM) $(DESTDIR)$(SYSCONFDIR)/init.d/$$f; done
+	for f in $(notdir $(RC)); do $(RM) $(DESTDIR)$(SYSCONFDIR)/init.d/$$f; done
 
 uninstall_runit:
-	for f in $(notdir ${RUNIT_SV}); do $(RM) $(DESTDIR)$(SYSCONFDIR)/runit/sv/$$f; done
+	for f in $(notdir $(RUNIT_SV)); do $(RM) $(DESTDIR)$(SYSCONFDIR)/runit/sv/$$f; done
 
 install: install_base install_rc install_portable_efi
 
