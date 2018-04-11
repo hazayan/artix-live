@@ -1,7 +1,13 @@
-Version=0.1
+VERSION=0.1
 
+PKG = live-services
 PREFIX = /usr/local
 SYSCONFDIR = /etc
+
+FMODE = -m0644
+DMODE = -dm0755
+BMODE = -m0755
+RM = rm -f
 
 BIN = \
 	bin/artix-live
@@ -31,68 +37,68 @@ GRUB_D = \
 
 all: $(BIN) $(RC) $(RUNIT_SV) $(XBIN) ${GRUB_D}
 
-edit = sed -e "s|@datadir[@]|$(DESTDIR)$(PREFIX)/share/artools|g" \
+EDIT = sed -e "s|@datadir[@]|$(DESTDIR)$(PREFIX)/share/artools|g" \
 	-e "s|@sysconfdir[@]|$(DESTDIR)$(SYSCONFDIR)/artools|g" \
 	-e "s|@libdir[@]|$(DESTDIR)$(PREFIX)/lib/artools|g"
 
 %: %.in Makefile
 	@echo "GEN $@"
 	@$(RM) "$@"
-	@m4 -P $@.in | $(edit) >$@
+	@m4 -P $@.in | $(EDIT) >$@
 	@chmod a-w "$@"
 	@chmod +x "$@"
 
 clean:
-	rm -f $(BIN) $(RC) ${GRUB_D}
+	$(RM) $(BIN) $(RC) ${GRUB_D}
 
 install_base:
-	install -dm0755 $(DESTDIR)$(PREFIX)/bin
-	install -m0755 ${BIN} $(DESTDIR)$(PREFIX)/bin
+	install $(DMODE) $(DESTDIR)$(PREFIX)/bin
+	install $(BMODE) ${BIN} $(DESTDIR)$(PREFIX)/bin
 
-	install -dm0755 $(DESTDIR)$(PREFIX)/lib/artools
-	install -m0644 ${LIBS} $(DESTDIR)$(PREFIX)/lib/artools
+	install $(DMODE) $(DESTDIR)$(PREFIX)/lib/artools
+	install $(FMODE) ${LIBS} $(DESTDIR)$(PREFIX)/lib/artools
 
-	install -dm0755 $(DESTDIR)$(PREFIX)/share/artools
-	install -m0644 ${SHARED} $(DESTDIR)$(PREFIX)/share/artools
+	install $(DMODE) $(DESTDIR)$(PREFIX)/share/artools
+	install $(FMODE) ${SHARED} $(DESTDIR)$(PREFIX)/share/artools
 
 install_rc:
-	install -dm0755 $(DESTDIR)$(SYSCONFDIR)/init.d
-	install -m0755 ${RC} $(DESTDIR)$(SYSCONFDIR)/init.d
+	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/init.d
+	install $(BMODE) ${RC} $(DESTDIR)$(SYSCONFDIR)/init.d
 
 install_runit:
-	install -dm0755 $(DESTDIR)$(SYSCONFDIR)/runit/core-services
-	install -dm0755 $(DESTDIR)$(SYSCONFDIR)/sv/pacman-init
-	install -m0755 ${RUNIT_CORE} $(DESTDIR)$(SYSCONFDIR)/runit/core-services
-	install -m0755 ${RUNIT_SV} $(DESTDIR)$(SYSCONFDIR)/runit/sv/pacman-init/run
+	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/runit/core-services
+	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/sv/pacman-init
+	install $(BMODE) ${RUNIT_CORE} $(DESTDIR)$(SYSCONFDIR)/runit/core-services
+	install $(BMODE) ${RUNIT_SV} $(DESTDIR)$(SYSCONFDIR)/runit/sv/pacman-init/run
 
 install_portable_efi:
-	install -dm0755 $(DESTDIR)$(SYSCONFDIR)/default
-	install -m0755 $(GRUB_DEFAULT) $(DESTDIR)$(SYSCONFDIR)/default
+	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/default
+	install $(BMODE) $(GRUB_DEFAULT) $(DESTDIR)$(SYSCONFDIR)/default
 
-	install -dm0755 $(DESTDIR)$(SYSCONFDIR)/grub.d
-	install -m0755 $(GRUB_D) $(DESTDIR)$(SYSCONFDIR)/grub.d
+	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/grub.d
+	install $(BMODE) $(GRUB_D) $(DESTDIR)$(SYSCONFDIR)/grub.d
 
 uninstall_base:
-	for f in ${BIN}; do rm -f $(DESTDIR)$(PREFIX)/bin/$$f; done
-	for f in ${SHARED}; do rm -f $(DESTDIR)$(PREFIX)/share/artools/$$f; done
-	for f in ${LIBS}; do rm -f $(DESTDIR)$(PREFIX)/lib/artools/$$f; done
+	for f in $(notdir ${BIN}); do $(RM) $(DESTDIR)$(PREFIX)/bin/$$f; done
+	for f in $(notdir ${SHARED}); do $(RM) $(DESTDIR)$(PREFIX)/share/artools/$$f; done
+	for f in $(notdir ${LIBS}); do $(RM) $(DESTDIR)$(PREFIX)/lib/artools/$$f; done
 
 uninstall_portable_efi:
-	for f in ${GRUB_DEFAULT}; do rm -f $(DESTDIR)$(SYSCONFDIR)/default/$$f; done
-	for f in ${GRUB_D}; do rm -f $(DESTDIR)$(SYSCONFDIR)/grub.d/$$f; done
+	for f in $(notdir ${GRUB_DEFAULT}); do $(RM) $(DESTDIR)$(SYSCONFDIR)/default/$$f; done
+	for f in $(notdir ${GRUB_D}); do $(RM) $(DESTDIR)$(SYSCONFDIR)/grub.d/$$f; done
 
 uninstall_rc:
-	for f in ${RC}; do rm -f $(DESTDIR)$(SYSCONFDIR)/init.d/$$f; done
+	for f in $(notdir ${RC}); do $(RM) $(DESTDIR)$(SYSCONFDIR)/init.d/$$f; done
 
 uninstall_runit:
-	for f in ${RUNIT_SV}; do rm -f $(DESTDIR)$(SYSCONFDIR)/runit/sv/$$f; done
+	for f in $(notdir ${RUNIT_SV}); do $(RM) $(DESTDIR)$(SYSCONFDIR)/runit/sv/$$f; done
 
 install: install_base install_rc install_portable_efi
 
 uninstall: uninstall_base uninstall_rc uninstall_runit uninstall_portable_efi
 
 dist:
-	git archive --format=tar --prefix=live-services-$(Version)/ $(Version) | gzip -9 > live-services-$(Version).tar.gz
-	gpg --detach-sign --use-agent live-services-$(Version).tar.gz
+	git archive --format=tar --prefix=$(PKG)-$(VERSION)/ $(VERSION) | gzip -9 > $(PKG)-$(VERSION).tar.gz
+	gpg --detach-sign --use-agent $(PKG)-$(VERSION).tar.gz
 
 .PHONY: all clean install uninstall dist
