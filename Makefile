@@ -89,7 +89,7 @@ install_portable_efi:
 	install $(BMODE) $(GRUB_D) $(DESTDIR)$(SYSCONFDIR)/grub.d
 
 uninstall_base:
-	for f in $(notdir $(BIN)); do $(RM) $(DESTDIR)$(PREFIX)/bin/$$f; done
+	for f in $(notdir $(BIN)); do $(RM) $(DESTDIR)$(BINDIR)/$$f; done
 	for f in $(notdir $(SHARED)); do $(RM) $(DESTDIR)$(DATADIR)/$(TOOLS)/$$f; done
 	for f in $(notdir $(LIBS)); do $(RM) $(DESTDIR)$(LIBDIR)/$(TOOLS)/$$f; done
 
