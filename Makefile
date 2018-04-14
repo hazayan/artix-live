@@ -77,7 +77,7 @@ install_rc:
 
 install_runit:
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/runit/core-services
-	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/sv/pacman-init
+	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/runit/sv/pacman-init
 	install $(BMODE) $(RUNIT_CORE) $(DESTDIR)$(SYSCONFDIR)/runit/core-services
 	install $(BMODE) $(RUNIT_SV) $(DESTDIR)$(SYSCONFDIR)/runit/sv/pacman-init/run
 
