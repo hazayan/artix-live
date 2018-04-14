@@ -47,7 +47,7 @@ GRUB_D = \
 
 all: $(BIN) $(RC) $(RUNIT_SV) $(XBIN) $(GRUB_D)
 
-EDIT = sed -e "s|@datadir[@]|$(DATADIR)$(TOOLS)|g" \
+EDIT = sed -e "s|@datadir[@]|$(DATADIR)/$(TOOLS)|g" \
 	-e "s|@sysconfdir[@]|$(SYSCONFDIR)/$(TOOLS)|g" \
 	-e "s|@libdir[@]|$(LIBDIR)/$(TOOLS)|g"
 
@@ -68,8 +68,8 @@ install_base:
 	install $(DMODE) $(DESTDIR)$(LIBDIR)/$(TOOLS)
 	install $(FMODE) $(LIBS) $(DESTDIR)$(LIBDIR)/$(TOOLS)
 
-	install $(DMODE) $(DESTDIR)$(DATADIR)$(TOOLS)
-	install $(FMODE) $(SHARED) $(DESTDIR)$(DATADIR)$(TOOLS)
+	install $(DMODE) $(DESTDIR)$(DATADIR)/$(TOOLS)
+	install $(FMODE) $(SHARED) $(DESTDIR)$(DATADIR)/$(TOOLS)
 
 install_rc:
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/init.d
@@ -90,7 +90,7 @@ install_portable_efi:
 
 uninstall_base:
 	for f in $(notdir $(BIN)); do $(RM) $(DESTDIR)$(PREFIX)/bin/$$f; done
-	for f in $(notdir $(SHARED)); do $(RM) $(DESTDIR)$(DATADIR)$(TOOLS)/$$f; done
+	for f in $(notdir $(SHARED)); do $(RM) $(DESTDIR)$(DATADIR)/$(TOOLS)/$$f; done
 	for f in $(notdir $(LIBS)); do $(RM) $(DESTDIR)$(LIBDIR)/$(TOOLS)/$$f; done
 
 uninstall_portable_efi:
