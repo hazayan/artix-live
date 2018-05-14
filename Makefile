@@ -81,7 +81,7 @@ install_runit:
 
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/runit/sv/pacman-init
 	install $(BMODE) $(RUNIT_SVD) $(DESTDIR)$(LIBDIR)/rc/sv.d
-	ln -sf $(LIBDIR)/rc/sv.d/artix-live $(DESTDIR)$(SYSCONFDIR)/rc/sysinit/98-artix-live
+	ln -sf $(LIBDIR)/rc/sv.d/live $(DESTDIR)$(SYSCONFDIR)/rc/sysinit/98-live
 
 	install $(BMODE) $(RUNIT_SV) $(DESTDIR)$(SYSCONFDIR)/runit/sv/pacman-init/run
 
