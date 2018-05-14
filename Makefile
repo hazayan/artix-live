@@ -33,8 +33,8 @@ RC = \
 	data/rc/pacman-init \
 	data/rc/artix-live
 
-RUNIT_CORE = \
-	data/runit/89-artix-live.sh
+RUNIT_SVD = \
+	data/runit/live
 
 RUNIT_SV = \
 	data/runit/pacman-init.run
@@ -76,9 +76,13 @@ install_rc:
 	install $(BMODE) $(RC) $(DESTDIR)$(SYSCONFDIR)/init.d
 
 install_runit:
-	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/runit/core-services
+	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/rc/sysinit
+	install $(DMODE) $(DESTDIR)$(LIBDIR)/rc/sv.d
+
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/runit/sv/pacman-init
-	install $(BMODE) $(RUNIT_CORE) $(DESTDIR)$(SYSCONFDIR)/runit/core-services
+	install $(BMODE) $(RUNIT_SVD) $(DESTDIR)$(LIBDIR)/rc/sv.d
+	ln -sf $(LIBDIR)/rc/sv.d/artix-live $(DESTDIR)$(SYSCONFDIR)/rc/sysinit/98-artix-live
+
 	install $(BMODE) $(RUNIT_SV) $(DESTDIR)$(SYSCONFDIR)/runit/sv/pacman-init/run
 
 install_portable_efi:
