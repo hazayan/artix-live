@@ -45,6 +45,10 @@ GRUB_DEFAULT = \
 GRUB_D = \
 	data/99_zzz-portable-efi
 
+XDG = $(wildcard data/*.desktop)
+
+XBIN = bin/desktop-items
+
 all: $(BIN) $(RC) $(RUNIT_SV) $(XBIN) $(GRUB_D)
 
 EDIT = sed -e "s|@datadir[@]|$(DATADIR)/$(TOOLS)|g" \
@@ -92,27 +96,13 @@ install_portable_efi:
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/grub.d
 	install $(BMODE) $(GRUB_D) $(DESTDIR)$(SYSCONFDIR)/grub.d
 
-uninstall_base:
-	for f in $(notdir $(BIN)); do $(RM) $(DESTDIR)$(BINDIR)/$$f; done
-	for f in $(notdir $(SHARED)); do $(RM) $(DESTDIR)$(DATADIR)/$(TOOLS)/$$f; done
-	for f in $(notdir $(LIBS)); do $(RM) $(DESTDIR)$(LIBDIR)/$(TOOLS)/$$f; done
+install_xdg:
+	install -dm0755 $(DESTDIR)$(PREFIX)/bin
+	install -m0755 ${XBIN} $(DESTDIR)$(PREFIX)/bin
 
-uninstall_portable_efi:
-	for f in $(notdir $(GRUB_DEFAULT)); do $(RM) $(DESTDIR)$(SYSCONFDIR)/default/$$f; done
-	for f in $(notdir $(GRUB_D)); do $(RM) $(DESTDIR)$(SYSCONFDIR)/grub.d/$$f; done
+	install -dm0755 $(DESTDIR)$(SYSCONFDIR)/skel/.config/autostart
+	install -m0755 ${XDG} $(DESTDIR)$(SYSCONFDIR)/skel/.config/autostart
 
-uninstall_rc:
-	for f in $(notdir $(RC)); do $(RM) $(DESTDIR)$(SYSCONFDIR)/init.d/$$f; done
-
-uninstall_runit:
-	for f in $(notdir $(RUNIT_SV)); do $(RM) $(DESTDIR)$(SYSCONFDIR)/runit/sv/$$f; done
-
-install: install_base install_rc install_portable_efi
-
-uninstall: uninstall_base uninstall_rc uninstall_runit uninstall_portable_efi
-
-dist:
-	git archive --format=tar --prefix=$(PKG)-$(VERSION)/ $(VERSION) | gzip -9 > $(PKG)-$(VERSION).tar.gz
-	gpg --detach-sign --use-agent $(PKG)-$(VERSION).tar.gz
+install: install_base install_rc install_portable_efi install_xdg
 
 .PHONY: all clean install uninstall dist
