@@ -1,11 +1,11 @@
 #!/bin/sh
 
 xdg=$(xdg-user-dir DESKTOP)
-src='/usr/share/applications'
+src=/usr/share/applications
 
-if [[ -f "$src/konversation.desktop" ]]; then
+if [[ -f $src/konversation.desktop ]]; then
     install -Dm755 $src/konversation.desktop \
-    "$xdg/konversation.desktop"
+    $xdg/konversation.desktop
 fi
 
 if [[ -f /usr/bin/calamares ]]; then

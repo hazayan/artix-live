@@ -267,23 +267,6 @@ configure_language(){
     echo "Configured timezone: ${timezone}" >> "${LOGFILE}"
 }
 
-configure_calamares(){
-    if [[ -f /usr/bin/calamares ]];then
-        netinstall=$(get_cal_mode)
-        if [[ "${netinstall}" == 'no' ]];then
-            sed -e "/- netinstall/d" \
-                -e "s|- chrootcfg|- unpackfs|" -i /etc/calamares/settings.conf
-
-            sed -e '$ d' -i /etc/calamares/modules/welcome.conf
-        fi
-    fi
-}
-
-configure_sudoers_d(){
-    echo "%wheel  ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/g_wheel
-    echo "root ALL=(ALL) ALL"  > /etc/sudoers.d/u_root
-}
-
 configure_swap(){
     local swapdev="$(fdisk -l 2>/dev/null | grep swap | cut -d' ' -f1)"
     if [ -e "${swapdev}" ]; then

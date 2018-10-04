@@ -38,24 +38,12 @@ configure_user
 echo "Created user ${username} with password ${password}: $(elapsed_time_ms ${livetimer})ms" >> "${LOGFILE}"
 
 livetimer=$(get_timer_ms)
-configure_sudoers_d
-echo "Configured sudoers: $(elapsed_time_ms ${livetimer})ms" >> "${LOGFILE}"
-
-# livetimer=$(get_timer_ms)
-# configure_machine_id
-# echo "Configured machine-id: $(elapsed_time_ms ${livetimer})ms" >> "${LOGFILE}"
-
-livetimer=$(get_timer_ms)
 configure_accountsservice "${username}"
 echo "Configured accountsservice: $(elapsed_time_ms ${livetimer})ms" >> "${LOGFILE}"
 
 livetimer=$(get_timer_ms)
 configure_displaymanager
 echo "Configured displaymanager: $(elapsed_time_ms ${livetimer})ms" >> "${LOGFILE}"
-
-# livetimer=$(get_timer_ms)
-# configure_calamares
-# echo "Configured calamares netinstall ${netinstall} $(elapsed_time_ms ${livetimer})ms" >> "${LOGFILE}"
 
 livetimer=$(get_timer_ms)
 configure_user_root /
