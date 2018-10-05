@@ -3,9 +3,9 @@
 xdg=$(xdg-user-dir DESKTOP)
 src=/usr/share/applications
 
-if [[ -f $src/konversation.desktop ]]; then
-    install -Dm755 $src/konversation.desktop \
-    $xdg/konversation.desktop
+if [[ -f $src/Konversation.desktop ]]; then
+    install -Dm755 $src/Konversation.desktop \
+    $xdg/Konversation-artix-help.desktop
 fi
 
 if [[ -f /usr/bin/calamares ]]; then
