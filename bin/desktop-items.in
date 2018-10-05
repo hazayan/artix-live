@@ -12,3 +12,15 @@ if [[ -f /usr/bin/calamares ]]; then
     install -Dm755 $src/calamares.desktop \
     $xdg/calamares.desktop
 fi
+
+docs=/usr/share/doc/artix
+
+for f in {Configuration,Installation,Migration,Troubleshooting}.pdf;do
+    ln -s $docs/$f $xdg/$f
+done
+
+if [[ -d /run/openrc ]];then
+    ln -s $docs/OpenRC.pdf $xdg/OpenRC.pdf
+else
+    ln -s $docs/Runit.pdf $xdg/Runit.pdf
+fi
