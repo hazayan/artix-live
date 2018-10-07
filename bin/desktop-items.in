@@ -3,13 +3,13 @@
 xdg=$(xdg-user-dir DESKTOP)
 src=/usr/share/applications
 
-if [[ -f $src/org.kde.konversation.desktop ]]; then
-    install -Dm755 $src/org.kde.konversation.desktop \
+if [[ -f $src/org.kde.konversation ]]; then
+    cp $src/org.kde.konversation \
     $xdg/konversation-artix-help.desktop
 fi
 
 if [[ -f /usr/bin/calamares ]]; then
-    install -Dm755 $src/calamares.desktop \
+    cp $src/calamares.desktop \
     $xdg/calamares.desktop
 fi
 
