@@ -25,4 +25,4 @@ else
     ln -s $docs/Runit.pdf $xdg/Runit.pdf
 fi
 
-echo "live session details: /var/log/artix-live.log" > README.txt
+echo "live session details: /var/log/artix-live.log" > $xdg/README.txt
