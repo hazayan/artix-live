@@ -3,19 +3,19 @@
 xdg=$(xdg-user-dir DESKTOP)
 src=/usr/share/applications
 
-if [[ -f $src/org.kde.konversation ]]; then
-    cp $src/org.kde.konversation \
-    $xdg/konversation-artix-help.desktop
+if [[ -f $src/org.kde.konversation.desktop ]]; then
+    install -m644 $src/org.kde.konversation.desktop \
+    $xdg/org.kde.konversation.desktop
 fi
 
-if [[ -f /usr/bin/calamares ]]; then
-    cp $src/calamares.desktop \
-    $xdg/calamares.desktop
-fi
+# if [[ -f /usr/bin/calamares ]]; then
+#     cp $src/calamares.desktop \
+#     $xdg/calamares.desktop
+# fi
 
 docs=/usr/share/doc/artix
 
-for f in {Configuration,Installation,Migration,Troubleshooting}.pdf;do
+for f in {Configuration,Troubleshooting}.pdf;do
     ln -s $docs/$f $xdg/$f
 done
 
@@ -24,3 +24,5 @@ if [[ -d /run/openrc ]];then
 else
     ln -s $docs/Runit.pdf $xdg/Runit.pdf
 fi
+
+echo "live session details: /var/log/artix-live.log" > README.txt
