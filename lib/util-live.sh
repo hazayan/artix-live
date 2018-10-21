@@ -50,17 +50,17 @@ load_live_config(){
 
     [[ -f $1 ]] || return 1
 
-    live_conf="$1"
+    local live_conf="$1"
 
     [[ -r ${live_conf} ]] && source ${live_conf}
 
-    [[ -z ${autologin} ]] && autologin=true
+    [[ -z ${AUTOLOGIN} ]] && AUTOLOGIN=true
 
-    [[ -z ${username} ]] && username="artix"
+    [[ -z ${USER_NAME} ]] && USER_NAME="artix"
 
-    [[ -z ${password} ]] && password="artix"
+    [[ -z ${PASSWORD} ]] && PASSWORD="artix"
 
-    [[ -z ${addgroups} ]] && addgroups="video,power,storage,optical,network,lp,scanner,wheel,users,audio"
+    [[ -z ${ADDGROUPS} ]] && ADDGROUPS="video,power,storage,optical,network,lp,scanner,wheel,users,audio"
 
     echo "Loaded ${live_conf}: $(elapsed_time_ms ${livetimer})ms" >> "${LOGFILE}"
 
@@ -68,8 +68,8 @@ load_live_config(){
 }
 
 is_valid_de(){
-    if [[ ${default_desktop_executable} != "none" ]] && \
-    [[ ${default_desktop_file} != "none" ]]; then
+    if [[ ${DEFAULT_DESKTOP_EXECUTABLE} != "none" ]] && \
+    [[ ${DEFAULT_DESKTOP_FILE} != "none" ]]; then
         return 0
     else
         return 1
@@ -85,14 +85,14 @@ load_desktop_map(){
 
 detect_desktop_env(){
     local xs=/usr/share/xsessions ex=/usr/bin key val map=( $(load_desktop_map) )
-    default_desktop_file="none"
-    default_desktop_executable="none"
+    DEFAULT_DESKTOP_FILE="none"
+    DEFAULT_DESKTOP_EXECUTABLE="none"
     for item in "${map[@]}";do
         key=${item%:*}
         val=${item#*:}
         if [[ -f $xs/$key.desktop ]] && [[ -f $ex/$val ]];then
-            default_desktop_file="$key"
-            default_desktop_executable="$val"
+            DEFAULT_DESKTOP_FILE="$key"
+            DEFAULT_DESKTOP_EXECUTABLE="$val"
         fi
     done
 }
@@ -101,7 +101,7 @@ configure_accountsservice(){
     local path=/var/lib/AccountsService/users
     if [ -d "${path}" ] ; then
         echo "[User]" > ${path}/$1
-        echo "XSession=${default_desktop_file}" >> ${path}/$1
+        echo "XSession=${DEFAULT_DESKTOP_FILE}" >> ${path}/$1
         if [[ -f "/var/lib/AccountsService/icons/$1.png" ]];then
             echo "Icon=/var/lib/AccountsService/icons/$1.png" >> ${path}/$1
         fi
@@ -134,62 +134,62 @@ configure_displaymanager(){
         set_lightdm_vt
         set_lightdm_greeter
         if $(is_valid_de); then
-                sed -i -e "s/^.*user-session=.*/user-session=$default_desktop_file/" /etc/lightdm/lightdm.conf
+                sed -i -e "s/^.*user-session=.*/user-session=$DEFAULT_DESKTOP_FILE/" /etc/lightdm/lightdm.conf
         fi
-        if ${autologin};then
-            gpasswd -a ${username} autologin &> /dev/null
-            sed -i -e "s/^.*autologin-user=.*/autologin-user=${username}/" /etc/lightdm/lightdm.conf
+        if ${AUTOLOGIN};then
+            gpasswd -a ${USER_NAME} autologin &> /dev/null
+            sed -i -e "s/^.*autologin-user=.*/autologin-user=${USER_NAME}/" /etc/lightdm/lightdm.conf
             sed -i -e "s/^.*autologin-user-timeout=.*/autologin-user-timeout=0/" /etc/lightdm/lightdm.conf
             sed -i -e "s/^.*pam-autologin-service=.*/pam-autologin-service=lightdm-autologin/" /etc/lightdm/lightdm.conf
         fi
     elif [[ -f /usr/bin/gdm ]];then
         configure_accountsservice "gdm"
-        if ${autologin};then
-            sed -i -e "s/\[daemon\]/\[daemon\]\nAutomaticLogin=${username}\nAutomaticLoginEnable=True/" /etc/gdm/custom.conf
+        if ${AUTOLOGIN};then
+            sed -i -e "s/\[daemon\]/\[daemon\]\nAutomaticLogin=${USER_NAME}\nAutomaticLoginEnable=True/" /etc/gdm/custom.conf
         fi
     elif [[ -f /usr/bin/sddm ]];then
         if $(is_valid_de); then
-            sed -i -e "s|^Session=.*|Session=$default_desktop_file.desktop|" /etc/sddm.conf
+            sed -i -e "s|^Session=.*|Session=$DEFAULT_DESKTOP_FILE.desktop|" /etc/sddm.conf
         fi
-        if ${autologin};then
-            sed -i -e "s|^User=.*|User=${username}|" /etc/sddm.conf
+        if ${AUTOLOGIN};then
+            sed -i -e "s|^User=.*|User=${USER_NAME}|" /etc/sddm.conf
         fi
     elif [[ -f /usr/bin/lxdm ]];then
         if $(is_valid_de); then
-            sed -i -e "s|^.*session=.*|session=/usr/bin/$default_desktop_executable|" /etc/lxdm/lxdm.conf
+            sed -i -e "s|^.*session=.*|session=/usr/bin/${DEFAULT_DESKTOP_EXECUTABLE}|" /etc/lxdm/lxdm.conf
         fi
-        if ${autologin};then
-            sed -i -e "s/^.*autologin=.*/autologin=${username}/" /etc/lxdm/lxdm.conf
+        if ${AUTOLOGIN};then
+            sed -i -e "s/^.*autologin=.*/autologin=${USER_NAME}/" /etc/lxdm/lxdm.conf
         fi
     fi
 }
 
 gen_pw(){
-    echo $(perl -e 'print crypt($ARGV[0], "password")' ${password})
+    echo $(perl -e 'print crypt($ARGV[0], "password")' ${PASSWORD})
 }
 
 configure_user(){
     # set up user and password
-    if [[ -n ${password} ]];then
-            useradd -m -G ${addgroups} -p $(gen_pw) -s /bin/bash ${username}
+    if [[ -n ${PASSWORD} ]];then
+            useradd -m -G ${ADDGROUPS} -p $(gen_pw) -s /bin/bash ${USER_NAME}
     else
-            useradd -m -G ${addgroups} -s /bin/bash ${username}
+            useradd -m -G ${ADDGROUPS} -s /bin/bash ${USER_NAME}
     fi
 }
 
 find_legacy_keymap(){
-    local file="${DATADIR}/kbd-model.map"
+    local file="${DATADIR}/kbd-model.map" kt="$1"
     while read -r line || [[ -n $line ]]; do
         if [[ -z $line ]] || [[ $line == \#* ]]; then
             continue
         fi
 
-        mapping=( $line ); # parses columns
+        local mapping=( $line ); # parses columns
         if [[ ${#mapping[@]} != 5 ]]; then
             continue
         fi
 
-        if  [[ "${keytable}" != "${mapping[0]}" ]]; then
+        if  [[ "$kt" != "${mapping[0]}" ]]; then
             continue
         fi
 
@@ -212,12 +212,13 @@ write_x11_config(){
     local X11_MODEL="pc105"
     local X11_VARIANT=""
     local X11_OPTIONS="terminate:ctrl_alt_bksp"
+    local kt="$1"
 
-    find_legacy_keymap
+    find_legacy_keymap "$kt"
 
     # layout not found, use KBLAYOUT
     if [[ -z "$X11_LAYOUT" ]]; then
-        X11_LAYOUT="${keytable}"
+        X11_LAYOUT="$kt"
     fi
 
     # create X11 keyboard layout config
@@ -239,7 +240,7 @@ write_x11_config(){
 configure_language(){
     # hack to be able to set the locale on bootup
     local lang=$(get_lang)
-    keytable=$(get_keytable)
+    local keytable=$(get_keytable)
     local timezone=$(get_tz)
     # Fallback
 #     [[ -z "${lang}" ]] && lang="en_US"
@@ -257,7 +258,7 @@ configure_language(){
     echo "LANG=${lang}.UTF-8" > /etc/locale.conf
     ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
 
-    write_x11_config
+    write_x11_config "${keytable}"
 
     loadkeys "${keytable}"
 
@@ -276,6 +277,6 @@ configure_swap(){
 
 configure_user_root(){
     # set up root password
-    echo "root:${password}" | chroot $1 chpasswd
+    echo "root:${PASSWORD}" | chroot $1 chpasswd
     cp /etc/skel/.{bash_profile,bashrc,bash_logout} /root/
 }
