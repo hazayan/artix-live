@@ -9,6 +9,9 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+export LC_MESSAGES=C
+export LANG=C
+
 kernel_cmdline(){
     for param in $(cat /proc/cmdline); do
         case "${param}" in
@@ -33,19 +36,6 @@ get_tz(){
     echo $(kernel_cmdline tz)
 }
 
-get_cal_mode(){
-    echo $(kernel_cmdline netinstall)
-}
-
-get_timer_ms(){
-    echo $(date +%s%3N)
-}
-
-# $1: start timer
-elapsed_time_ms(){
-    echo $(echo $1 $(get_timer_ms) | awk '{ printf "%0.3f",($2-$1)/1000 }')
-}
-
 load_live_config(){
 
     [[ -f $1 ]] || return 1
@@ -61,8 +51,6 @@ load_live_config(){
     [[ -z ${PASSWORD} ]] && PASSWORD="artix"
 
     [[ -z ${ADDGROUPS} ]] && ADDGROUPS="video,power,storage,optical,network,lp,scanner,wheel,users,audio"
-
-    echo "Loaded ${live_conf}: $(elapsed_time_ms ${livetimer})ms" >> "${LOGFILE}"
 
     return 0
 }
@@ -168,15 +156,6 @@ gen_pw(){
     echo $(perl -e 'print crypt($ARGV[0], "password")' ${PASSWORD})
 }
 
-configure_user(){
-    # set up user and password
-    if [[ -n ${PASSWORD} ]];then
-            useradd -m -G ${ADDGROUPS} -p $(gen_pw) -s /bin/bash ${USER_NAME}
-    else
-            useradd -m -G ${ADDGROUPS} -s /bin/bash ${USER_NAME}
-    fi
-}
-
 find_legacy_keymap(){
     local file="${DATADIR}/kbd-model.map" kt="$1"
     while read -r line || [[ -n $line ]]; do
@@ -242,14 +221,8 @@ configure_language(){
     local lang=$(get_lang)
     local keytable=$(get_keytable)
     local timezone=$(get_tz)
-    # Fallback
-#     [[ -z "${lang}" ]] && lang="en_US"
-#     [[ -z "${keytable}" ]] && keytable="us"
-#     [[ -z "${timezone}" ]] && timezone="Etc/UTC"
 
     sed -e "s/#${lang}.UTF-8/${lang}.UTF-8/" -i /etc/locale.gen
-
-    # 	echo "LANG=${lang}.UTF-8" >> /etc/environment
 
     if [[ -d /run/openrc ]]; then
         sed -i "s/keymap=.*/keymap=\"${keytable}\"/" /etc/conf.d/keymaps
@@ -275,8 +248,15 @@ configure_swap(){
     fi
 }
 
-configure_user_root(){
-    # set up root password
-    echo "root:${PASSWORD}" | chroot $1 chpasswd
-    cp /etc/skel/.{bash_profile,bashrc,bash_logout} /root/
+configure_user(){
+    local user="$1"
+    if [[ "$user" == 'root' ]];then
+        echo "root:${PASSWORD}" | chroot / chpasswd
+        cp /etc/skel/.{bash_profile,bashrc,bash_logout} /root/
+    else
+        local args=(-m -G ${ADDGROUPS} -s /bin/bash $user)
+        # set up user and password
+        [[ -n ${PASSWORD} ]] && args+=(-p $(gen_pw))
+        useradd "${args[@]}"
+    fi
 }
