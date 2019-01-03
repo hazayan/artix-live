@@ -1,12 +1,10 @@
-VERSION = 0.7
+VERSION = 0.8
 
 PKG = live-services
 TOOLS = artools
 
 SYSCONFDIR = /etc
-ifdef PREFIX
-PREFIX = /usr/local
-endif
+PREFIX ?= /usr
 BINDIR = $(PREFIX)/bin
 LIBDIR = $(PREFIX)/lib
 DATADIR = $(PREFIX)/share
@@ -14,10 +12,6 @@ DATADIR = $(PREFIX)/share
 FMODE = -m0644
 DMODE = -dm0755
 BMODE = -m0755
-RM = rm -f
-M4 = m4 -P
-CHAW = chmod a-w
-CHX = chmod +x
 
 BIN = \
 	bin/artix-live
@@ -43,27 +37,12 @@ GRUB_DEFAULT = \
 	data/grub2-portable-efi
 
 GRUB_D = \
-	data/99_zzz-portable-efi
+	bin/99_zzz-portable-efi
 
 XDG = $(wildcard data/*.desktop)
 
 XBIN = bin/desktop-items
 
-all: $(BIN) $(RC) $(RUNIT_SV) $(XBIN) $(GRUB_D)
-
-EDIT = sed -e "s|@datadir[@]|$(DATADIR)/$(TOOLS)|g" \
-	-e "s|@sysconfdir[@]|$(SYSCONFDIR)/$(TOOLS)|g" \
-	-e "s|@libdir[@]|$(LIBDIR)/$(TOOLS)|g"
-
-%: %.in Makefile
-	@echo "GEN $@"
-	@$(RM) "$@"
-	@$(M4) $@.in | $(EDIT) >$@
-	@$(CHAW) "$@"
-	@$(CHX) "$@"
-
-clean:
-	$(RM) $(BIN) $(RC) $(GRUB_D)
 
 install_base:
 	install $(DMODE) $(DESTDIR)$(BINDIR)
@@ -105,4 +84,4 @@ install_xdg:
 
 install: install_base install_rc install_portable_efi install_xdg
 
-.PHONY: all clean install uninstall dist
+.PHONY: install
