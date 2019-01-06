@@ -44,13 +44,13 @@ load_live_config(){
 
     [[ -r ${live_conf} ]] && source ${live_conf}
 
-    [[ -z ${AUTOLOGIN} ]] && AUTOLOGIN=true
+    AUTOLOGIN=${AUTOLOGIN:-true}
 
-    [[ -z ${USER_NAME} ]] && USER_NAME="artix"
+    USER_NAME=${USER_NAME:-"artix"}
 
-    [[ -z ${PASSWORD} ]] && PASSWORD="artix"
+    PASSWORD=${PASSWORD:-"artix"}
 
-    [[ -z ${ADDGROUPS} ]] && ADDGROUPS="video,power,storage,optical,network,lp,scanner,wheel,users,audio"
+    ADDGROUPS=${ADDGROUPS:-"video,power,cdrom,network,lp,scanner,wheel,users,log"}
 
     return 0
 }
