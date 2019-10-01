@@ -33,6 +33,12 @@ RUNIT_SVD = \
 RUNIT_SV = \
 	data/runit/pacman-init.run
 
+S6_SVD = \
+	data/s6/live
+
+S6_SV = \
+	data/s6/pacman-init.run
+
 GRUB_DEFAULT = \
 	data/grub2-portable-efi
 
@@ -62,11 +68,21 @@ install_runit:
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/rc/sysinit
 	install $(DMODE) $(DESTDIR)$(LIBDIR)/rc/sv.d
 
-	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/runit/sv/pacman-init
 	install $(BMODE) $(RUNIT_SVD) $(DESTDIR)$(LIBDIR)/rc/sv.d
 	ln -sf $(LIBDIR)/rc/sv.d/live $(DESTDIR)$(SYSCONFDIR)/rc/sysinit/98-live
 
+	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/runit/sv/pacman-init
 	install $(BMODE) $(RUNIT_SV) $(DESTDIR)$(SYSCONFDIR)/runit/sv/pacman-init/run
+
+install_s6:
+	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/rc/sysinit
+	install $(DMODE) $(DESTDIR)$(LIBDIR)/rc/sv.d
+
+	install $(BMODE) $(S6_SVD) $(DESTDIR)$(LIBDIR)/rc/sv.d
+	ln -sf $(LIBDIR)/rc/sv.d/live $(DESTDIR)$(SYSCONFDIR)/rc/sysinit/98-live
+
+	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/s6/sv/pacman-init
+	install $(BMODE) $(S6_SV) $(DESTDIR)$(SYSCONFDIR)/s6/sv/pacman-init/run
 
 install_portable_efi:
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/default
@@ -82,6 +98,6 @@ install_xdg:
 	install -dm0755 $(DESTDIR)$(SYSCONFDIR)/skel/.config/autostart
 	install -m0755 ${XDG} $(DESTDIR)$(SYSCONFDIR)/skel/.config/autostart
 
-install: install_base install_rc install_portable_efi install_xdg
+install: install_base install_rc install_s6 install_portable_efi install_xdg
 
 .PHONY: install
