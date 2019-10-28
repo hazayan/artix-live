@@ -33,8 +33,14 @@ RUNIT_SVD = \
 RUNIT_SV = \
 	data/runit/pacman-init.run
 
-S6_SVD = \
-	data/s6/live
+S6_LIVE = \
+	$(wildcard data/s6/artix-live/*)
+
+S6_PI = \
+	$(wildcard data/s6/pacman-init/*)
+
+S6_BUNDLE = \
+	$(wildcard data/s6/live/*)
 
 S6_SV = \
 	data/s6/pacman-init.run
@@ -75,14 +81,16 @@ install_runit:
 	install $(BMODE) $(RUNIT_SV) $(DESTDIR)$(SYSCONFDIR)/runit/sv/pacman-init/run
 
 install_s6:
-	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/rc/sysinit
-	install $(DMODE) $(DESTDIR)$(LIBDIR)/rc/sv.d
-
-	install $(BMODE) $(S6_SVD) $(DESTDIR)$(LIBDIR)/rc/sv.d
-	ln -sf $(LIBDIR)/rc/sv.d/live $(DESTDIR)$(SYSCONFDIR)/rc/sysinit/98-live
+	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/s6/sv
 
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/s6/sv/pacman-init
-	install $(BMODE) $(S6_SV) $(DESTDIR)$(SYSCONFDIR)/s6/sv/pacman-init/run
+	install $(BMODE) $(S6_PI) $(DESTDIR)$(SYSCONFDIR)/s6/sv/pacman-init/
+
+	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/s6/sv/artix-live
+	install $(BMODE) $(S6_LIVE) $(DESTDIR)$(SYSCONFDIR)/s6/sv/artix-live/
+
+	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/s6/sv/live
+	install $(BMODE) $(S6_BUNDLE) $(DESTDIR)$(SYSCONFDIR)/s6/sv/live/
 
 install_portable_efi:
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/default
