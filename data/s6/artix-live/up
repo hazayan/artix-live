@@ -1,0 +1,3 @@
+#!/usr/bin/execlineb -P
+if { echo "Initializing artix live system" }
+foreground { /usr/bin/artix-live }
