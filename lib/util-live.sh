@@ -66,7 +66,7 @@ is_valid_de(){
 
 load_desktop_map(){
     local _space="s| ||g" _clean=':a;N;$!ba;s/\n/ /g' _com_rm="s|#.*||g" \
-        file=${DATADIR}/desktop.map
+        file=/usr/share/artools/desktop.map
     local desktop_map=$(sed "$_com_rm" "$file" | sed "$_space" | sed "$_clean")
     echo ${desktop_map}
 }
@@ -157,7 +157,7 @@ gen_pw(){
 }
 
 find_legacy_keymap(){
-    local file="${DATADIR}/kbd-model.map" kt="$1"
+    local file="/usr/share/artools/kbd-model.map" kt="$1"
     while read -r line || [[ -n $line ]]; do
         if [[ -z $line ]] || [[ $line == \#* ]]; then
             continue
