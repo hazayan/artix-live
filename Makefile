@@ -45,12 +45,6 @@ S6_BUNDLE = \
 S6_SV = \
 	data/s6/pacman-init.run
 
-GRUB_DEFAULT = \
-	data/grub2-portable-efi
-
-GRUB_D = \
-	bin/99_zzz-portable-efi
-
 XDG = $(wildcard data/*.desktop)
 
 XBIN = bin/desktop-items
@@ -92,13 +86,6 @@ install_s6:
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/s6/sv/live
 	install $(BMODE) $(S6_BUNDLE) $(DESTDIR)$(SYSCONFDIR)/s6/sv/live/
 
-install_portable_efi:
-	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/default
-	install $(BMODE) $(GRUB_DEFAULT) $(DESTDIR)$(SYSCONFDIR)/default
-
-	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/grub.d
-	install $(BMODE) $(GRUB_D) $(DESTDIR)$(SYSCONFDIR)/grub.d
-
 install_xdg:
 	install -dm0755 $(DESTDIR)$(PREFIX)/bin
 	install -m0755 ${XBIN} $(DESTDIR)$(PREFIX)/bin
@@ -106,6 +93,6 @@ install_xdg:
 	install -dm0755 $(DESTDIR)$(SYSCONFDIR)/skel/.config/autostart
 	install -m0755 ${XDG} $(DESTDIR)$(SYSCONFDIR)/skel/.config/autostart
 
-install: install_base install_rc install_s6 install_portable_efi install_xdg
+install: install_base install_rc install_runit install_s6 install_xdg
 
 .PHONY: install

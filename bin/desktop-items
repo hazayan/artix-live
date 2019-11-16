@@ -3,10 +3,10 @@
 xdg=$(xdg-user-dir DESKTOP)
 src=/usr/share/applications
 
-if [[ -f $src/org.kde.konversation.desktop ]]; then
-    install -m644 $src/org.kde.konversation.desktop \
-    $xdg/org.kde.konversation.desktop
-fi
+# if [[ -f $src/org.kde.konversation.desktop ]]; then
+#     install -m644 $src/org.kde.konversation.desktop \
+#     $xdg/org.kde.konversation.desktop
+# fi
 
 # if [[ -f /usr/bin/calamares ]]; then
 #     cp $src/calamares.desktop \

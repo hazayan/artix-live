@@ -172,7 +172,7 @@ find_legacy_keymap(){
             continue
         fi
 
-        if [[ "${mapping[3]}" = "-" ]]; then
+        if [[ "${mapping[3]}" == "-" ]]; then
             mapping[3]=""
         fi
 
