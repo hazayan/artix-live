@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Ensure the user directories are created, some DEs (MATE)
+# create them after autostart scripts are run
+xdg-user-dirs-update --force
+
 xdg=$(xdg-user-dir DESKTOP)
 src=/usr/share/applications
 
