@@ -72,13 +72,13 @@ load_desktop_map(){
 }
 
 detect_desktop_env(){
-    local xs=/usr/share/xsessions ex=/usr/bin key val map=( $(load_desktop_map) )
+    local key val map=( $(load_desktop_map) )
     DEFAULT_DESKTOP_FILE="none"
     DEFAULT_DESKTOP_EXECUTABLE="none"
     for item in "${map[@]}";do
         key=${item%:*}
         val=${item#*:}
-        if [[ -f $xs/$key.desktop ]] && [[ -f $ex/$val ]];then
+        if [[ -f /usr/share/xsessions/$key.desktop ]] && [[ -f /usr/bin/$val ]];then
             DEFAULT_DESKTOP_FILE="$key"
             DEFAULT_DESKTOP_EXECUTABLE="$val"
         fi
@@ -110,16 +110,12 @@ configure_accountsservice(){
     done
  }
 
- set_lightdm_vt(){
-	sed -i -e 's/^.*minimum-vt=.*/minimum-vt=7/' /etc/lightdm/lightdm.conf
- }
-
 configure_displaymanager(){
     # Try to detect desktop environment
     # Configure display manager
     if [[ -f /usr/bin/lightdm ]];then
         groupadd -r autologin
-        set_lightdm_vt
+        sed -i -e 's/^.*minimum-vt=.*/minimum-vt=7/' /etc/lightdm/lightdm.conf
         set_lightdm_greeter
         if $(is_valid_de); then
                 sed -i -e "s/^.*user-session=.*/user-session=$DEFAULT_DESKTOP_FILE/" /etc/lightdm/lightdm.conf
