@@ -32,4 +32,5 @@ echo "Configured accountsservice" >> "${LOGFILE}"
 configure_displaymanager
 echo "Configured displaymanager" >> "${LOGFILE}"
 
-
+configure_branding
+echo "Configured branding" >> "${LOGFILE}"

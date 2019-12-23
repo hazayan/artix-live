@@ -244,6 +244,10 @@ configure_swap(){
     fi
 }
 
+configure_branding(){
+    neofetch >| /etc/issue
+}
+
 configure_user(){
     local user="$1"
     if [[ "$user" == 'root' ]];then
