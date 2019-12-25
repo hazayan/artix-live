@@ -45,8 +45,6 @@ load_live_config(){
     [[ -r ${live_conf} ]] && source ${live_conf}
 
     AUTOLOGIN=${AUTOLOGIN:-true}
-    
-    AUTOLOGIN_SESSION=${AUTOLOGIN_SESSION:-"LXDE"}
 
     USER_NAME=${USER_NAME:-"artix"}
 
@@ -125,7 +123,7 @@ configure_displaymanager(){
         if ${AUTOLOGIN};then
             gpasswd -a ${USER_NAME} autologin &> /dev/null
             sed -i -e "s/^.*autologin-user=.*/autologin-user=${USER_NAME}/" /etc/lightdm/lightdm.conf
-            sed -i -e "s/^.*autologin-session=.*/autologin-session=${AUTOLOGIN_SESSION}/" /etc/lightdm/lightdm.conf
+            sed -i -e "s/^.*autologin-session=.*/autologin-session=${DEFAULT_DESKTOP_FILE}/" /etc/lightdm/lightdm.conf
             sed -i -e "s/^.*autologin-user-timeout=.*/autologin-user-timeout=0/" /etc/lightdm/lightdm.conf
             sed -i -e "s/^.*pam-autologin-service=.*/pam-autologin-service=lightdm-autologin/" /etc/lightdm/lightdm.conf
         fi
