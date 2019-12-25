@@ -10,7 +10,7 @@ depend() {
 }
 
 start() {
-	ebegin "Starting artix live script"
-	/usr/bin/artix-live
-	eend $?
+    ebegin "Starting artix live script"
+    /usr/bin/artix-live
+    eend $?
 }
