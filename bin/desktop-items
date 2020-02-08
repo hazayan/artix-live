@@ -25,8 +25,10 @@ done
 
 if [[ -d /run/openrc ]];then
     ln -s $docs/OpenRC.pdf $xdg/OpenRC.pdf
-else
+elif [[ -d /run/runit ]];then
     ln -s $docs/Runit.pdf $xdg/Runit.pdf
+else
+    ln -s $docs/S6.pdf $xdg/S6.pdf
 fi
 
 echo "live session details: /var/log/artix-live.log" > $xdg/README.txt
