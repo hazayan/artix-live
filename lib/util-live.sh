@@ -245,7 +245,9 @@ configure_swap(){
 }
 
 configure_branding(){
-    neofetch >| /etc/issue
+    if [[ -f /usr/bin/neofetch ]]; then
+        neofetch >| /etc/issue
+    fi
 }
 
 configure_user(){
