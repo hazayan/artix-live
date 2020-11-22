@@ -12,23 +12,22 @@ src=/usr/share/applications
 #     $xdg/org.kde.konversation.desktop
 # fi
 
-# if [[ -f /usr/bin/calamares ]]; then
-#     cp $src/calamares.desktop \
-#     $xdg/calamares.desktop
-# fi
+if [[ -f /usr/bin/calamares ]]; then
+    cp $src/calamares.desktop "$xdg"/calamares.desktop
+fi
 
 docs=/usr/share/doc/artix
 
-for f in {Configuration,Troubleshooting}.pdf;do
-    ln -s $docs/$f $xdg/$f
+for f in {Configuration,Troubleshooting}.pdf; do
+    ln -s $docs/$f "$xdg"/$f
 done
 
-if [[ -d /run/openrc ]];then
-    ln -s $docs/OpenRC.pdf $xdg/OpenRC.pdf
-elif [[ -d /run/runit ]];then
-    ln -s $docs/Runit.pdf $xdg/Runit.pdf
+if [[ -d /run/openrc ]]; then
+    ln -s $docs/OpenRC.pdf "$xdg"/OpenRC.pdf
+elif [[ -d /run/runit ]]; then
+    ln -s $docs/Runit.pdf "$xdg"/Runit.pdf
 else
-    ln -s $docs/S6.pdf $xdg/S6.pdf
+    ln -s $docs/S6.pdf "$xdg"/S6.pdf
 fi
 
-echo "live session details: /var/log/artix-live.log" > $xdg/README.txt
+echo "live session details: /var/log/artix-live.log" > "$xdg"/README.txt
