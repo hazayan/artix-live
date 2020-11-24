@@ -13,7 +13,7 @@ src=/usr/share/applications
 # fi
 
 if [[ -f /usr/bin/calamares ]]; then
-    cp $src/calamares.desktop "$xdg/"
+    cp -f $src/calamares.desktop "$xdg/"
     chmod +x "$xdg/calamares.desktop"
 fi
 
