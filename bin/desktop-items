@@ -13,8 +13,8 @@ src=/usr/share/applications
 # fi
 
 if [[ -f /usr/bin/calamares ]]; then
-    sed -i s/Icon.*=calamares/Icon=artixlinux-logo/g $src/calamares.desktop
     cp -f $src/calamares.desktop "$xdg/"
+    sed -i s/Icon.*=calamares/Icon=artixlinux-logo/g "$xdg"/calamares.desktop
     chmod +x "$xdg/calamares.desktop"
 fi
 
