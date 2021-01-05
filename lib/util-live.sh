@@ -1,16 +1,9 @@
-#!/bin/bash
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; version 2 of the License.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+#!/hint/bash
 
 export LC_MESSAGES=C
 export LANG=C
+
+# {{{ functions
 
 kernel_cmdline(){
     for param in $(cat /proc/cmdline); do
@@ -36,32 +29,12 @@ get_tz(){
     echo $(kernel_cmdline tz)
 }
 
-load_live_config(){
-
-    [[ -f $1 ]] || return 1
-
-    local live_conf="$1"
-
-    [[ -r ${live_conf} ]] && source ${live_conf}
-
-    AUTOLOGIN=${AUTOLOGIN:-true}
-
-    USER_NAME=${USER_NAME:-"artix"}
-
-    PASSWORD=${PASSWORD:-"artix"}
-
-    ADDGROUPS=${ADDGROUPS:-"video,power,cdrom,network,lp,scanner,wheel,users,log"}
-
-    return 0
-}
-
 is_valid_de(){
     if [[ ${DEFAULT_DESKTOP_EXECUTABLE} != "none" ]] && \
     [[ ${DEFAULT_DESKTOP_FILE} != "none" ]]; then
         return 0
-    else
-        return 1
     fi
+    return 1
 }
 
 load_desktop_map(){
@@ -220,9 +193,6 @@ configure_language(){
 
     sed -e "s/#${lang}.UTF-8/${lang}.UTF-8/" -i /etc/locale.gen
 
-    if [[ -d /run/openrc ]]; then
-        sed -i "s/keymap=.*/keymap=\"${keytable}\"/" /etc/conf.d/keymaps
-    fi
     echo "KEYMAP=${keytable}" > /etc/vconsole.conf
     echo "LANG=${lang}.UTF-8" > /etc/locale.conf
     ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
@@ -262,3 +232,27 @@ configure_user(){
         useradd "${args[@]}"
     fi
 }
+
+# }}}
+
+
+load_live_config(){
+
+    [[ -f $1 ]] || return 1
+
+    local live_conf="$1"
+
+    [[ -r ${live_conf} ]] && source ${live_conf}
+
+    AUTOLOGIN=${AUTOLOGIN:-true}
+
+    USER_NAME=${USER_NAME:-"artix"}
+
+    PASSWORD=${PASSWORD:-"artix"}
+
+    ADDGROUPS=${ADDGROUPS:-"video,power,cdrom,network,lp,scanner,wheel,users,log"}
+
+    return 0
+}
+
+load_live_config "@sysconfdir@/artools/live.conf" || load_live_config "@datadir@/artools/live.conf"

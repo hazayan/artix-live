@@ -1,4 +1,4 @@
-VERSION = 0.8
+VERSION = 0.9
 
 PKG = live-services
 TOOLS = artools
@@ -15,8 +15,6 @@ BMODE = -m0755
 
 BIN = \
 	bin/artix-live
-
-LIBS = $(wildcard lib/*.sh)
 
 SHARED = \
 	$(wildcard data/*.map) \
@@ -49,13 +47,30 @@ XDG = $(wildcard data/*.desktop)
 
 XBIN = bin/desktop-items
 
+RM = rm -f
+M4 = m4 -P
+CHMODAW = chmod a-w
+CHMODX = chmod +x
+
+all: $(BIN)
+
+EDIT = sed -e "s|@datadir[@]|$(DATADIR)|g" \
+	-e "s|@sysconfdir[@]|$(SYSCONFDIR)|g"
+
+%: %.in Makefile lib/util-live.sh
+	@echo "GEN $@"
+	@$(RM) "$@"
+	@{ echo -n 'm4_changequote([[[,]]])'; cat $@.in; } | $(M4) | $(EDIT) >$@
+	@$(CHMODAW) "$@"
+	@$(CHMODX) "$@"
+	@bash -O extglob -n "$@"
+
+clean:
+	$(RM) $(BIN)
 
 install_base:
 	install $(DMODE) $(DESTDIR)$(BINDIR)
 	install $(BMODE) $(BIN) $(DESTDIR)$(BINDIR)
-
-	install $(DMODE) $(DESTDIR)$(LIBDIR)/$(TOOLS)
-	install $(FMODE) $(LIBS) $(DESTDIR)$(LIBDIR)/$(TOOLS)
 
 	install $(DMODE) $(DESTDIR)$(DATADIR)/$(TOOLS)
 	install $(FMODE) $(SHARED) $(DESTDIR)$(DATADIR)/$(TOOLS)

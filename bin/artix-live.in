@@ -1,10 +1,8 @@
-#!/bin/sh
+#!/bin/bash
+
+m4_include(lib/util-live.sh)
 
 LOGFILE='/var/log/artix-live.log'
-
-. /usr/lib/artools/util-live.sh
-
-load_live_config "/etc/artools/live.conf" || load_live_config "/usr/share/artools/live.conf"
 
 CONSOLEFONT="$(kernel_cmdline vconsole.font)"
 CONSOLEMAP="$(kernel_cmdline vconsole.font.map)"
