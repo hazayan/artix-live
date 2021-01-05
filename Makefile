@@ -8,6 +8,7 @@ PREFIX ?= /usr
 BINDIR = $(PREFIX)/bin
 LIBDIR = $(PREFIX)/lib
 DATADIR = $(PREFIX)/share
+SYSUSERSDIR = $(PREFIX)/lib/sysusers.d
 
 FMODE = -m0644
 DMODE = -dm0755
@@ -47,6 +48,9 @@ XDG = $(wildcard data/*.desktop)
 
 XBIN = bin/desktop-items
 
+SYSUSERS = \
+	data/sysusers.conf
+
 RM = rm -f
 M4 = m4 -P
 CHMODAW = chmod a-w
@@ -71,6 +75,9 @@ clean:
 install_base:
 	install $(DMODE) $(DESTDIR)$(BINDIR)
 	install $(BMODE) $(BIN) $(DESTDIR)$(BINDIR)
+
+	install $(DMODE) $(DESTDIR)$(SYSUSERSDIR)
+	install $(FMODE) $(SYSUSERS) $(DESTDIR)$(SYSUSERSDIR)/live-artix.conf
 
 	install $(DMODE) $(DESTDIR)$(DATADIR)/$(TOOLS)
 	install $(FMODE) $(SHARED) $(DESTDIR)$(DATADIR)/$(TOOLS)
