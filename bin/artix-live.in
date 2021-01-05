@@ -18,8 +18,8 @@ echo "Finished localization" >> "${LOGFILE}"
 configure_user 'root'
 echo "Configured root user" >> "${LOGFILE}"
 
-configure_user "${USER_NAME}"
-echo "Created user ${USER_NAME} with password ${PASSWORD}" >> "${LOGFILE}"
+configure_user
+echo "Configured live user artix with password ${PASSWORD}" >> "${LOGFILE}"
 
 detect_desktop_env
 echo "Detected ${DEFAULT_DESKTOP_EXECUTABLE} ${DEFAULT_DESKTOP_FILE}" >> "${LOGFILE}"

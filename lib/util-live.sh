@@ -86,6 +86,8 @@ configure_accountsservice(){
 configure_displaymanager(){
     # Try to detect desktop environment
     # Configure display manager
+    local user_name=artix
+
     if [[ -f /usr/bin/lightdm ]];then
         groupadd -r autologin
         sed -i -e 's/^.*minimum-vt=.*/minimum-vt=7/' /etc/lightdm/lightdm.conf
@@ -94,29 +96,29 @@ configure_displaymanager(){
                 sed -i -e "s/^.*user-session=.*/user-session=$DEFAULT_DESKTOP_FILE/" /etc/lightdm/lightdm.conf
         fi
         if ${AUTOLOGIN};then
-            gpasswd -a ${USER_NAME} autologin &> /dev/null
-            sed -i -e "s/^.*autologin-user=.*/autologin-user=${USER_NAME}/" /etc/lightdm/lightdm.conf
+            gpasswd -a ${user_name} autologin &> /dev/null
+            sed -i -e "s/^.*autologin-user=.*/autologin-user=${user_name}/" /etc/lightdm/lightdm.conf
             sed -i -e "s/^.*autologin-user-timeout=.*/autologin-user-timeout=0/" /etc/lightdm/lightdm.conf
             sed -i -e "s/^.*pam-autologin-service=.*/pam-autologin-service=lightdm-autologin/" /etc/lightdm/lightdm.conf
         fi
     elif [[ -f /usr/bin/gdm ]];then
         configure_accountsservice "gdm"
         if ${AUTOLOGIN};then
-            sed -i -e "s/\[daemon\]/\[daemon\]\nAutomaticLogin=${USER_NAME}\nAutomaticLoginEnable=True/" /etc/gdm/custom.conf
+            sed -i -e "s/\[daemon\]/\[daemon\]\nAutomaticLogin=${user_name}\nAutomaticLoginEnable=True/" /etc/gdm/custom.conf
         fi
     elif [[ -f /usr/bin/sddm ]];then
         if $(is_valid_de); then
             sed -i -e "s|^Session=.*|Session=$DEFAULT_DESKTOP_FILE.desktop|" /etc/sddm.conf
         fi
         if ${AUTOLOGIN};then
-            sed -i -e "s|^User=.*|User=${USER_NAME}|" /etc/sddm.conf
+            sed -i -e "s|^User=.*|User=${user_name}|" /etc/sddm.conf
         fi
     elif [[ -f /usr/bin/lxdm ]];then
         if $(is_valid_de); then
             sed -i -e "s|^.*session=.*|session=/usr/bin/${DEFAULT_DESKTOP_EXECUTABLE}|" /etc/lxdm/lxdm.conf
         fi
         if ${AUTOLOGIN};then
-            sed -i -e "s/^.*autologin=.*/autologin=${USER_NAME}/" /etc/lxdm/lxdm.conf
+            sed -i -e "s/^.*autologin=.*/autologin=${user_name}/" /etc/lxdm/lxdm.conf
         fi
     fi
 }
@@ -221,15 +223,12 @@ configure_branding(){
 }
 
 configure_user(){
-    local user="$1"
+    local user="${1:-artix}"
     if [[ "$user" == 'root' ]];then
         echo "root:${PASSWORD}" | chroot / chpasswd
         cp /etc/skel/.{bash_profile,bashrc,bash_logout} /root/
     else
-        local args=(-m -G ${ADDGROUPS} -s /bin/bash $user)
-        # set up user and password
-        [[ -n ${PASSWORD} ]] && args+=(-p $(gen_pw))
-        useradd "${args[@]}"
+        echo "$user:${PASSWORD}" | chroot / chpasswd
     fi
 }
 
@@ -246,11 +245,7 @@ load_live_config(){
 
     AUTOLOGIN=${AUTOLOGIN:-true}
 
-    USER_NAME=${USER_NAME:-"artix"}
-
     PASSWORD=${PASSWORD:-"artix"}
-
-    ADDGROUPS=${ADDGROUPS:-"video,power,cdrom,network,lp,scanner,wheel,users,log"}
 
     return 0
 }
