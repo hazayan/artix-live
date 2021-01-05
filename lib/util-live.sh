@@ -224,12 +224,13 @@ configure_branding(){
 
 configure_user(){
     local user="${1:-artix}"
-    if [[ "$user" == 'root' ]];then
-        echo "root:${PASSWORD}" | chroot / chpasswd
-        cp /etc/skel/.{bash_profile,bashrc,bash_logout} /root/
-    else
-        echo "$user:${PASSWORD}" | chroot / chpasswd
-    fi
+    case "$user" in
+        root)
+            echo "root:${PASSWORD}" | chroot / chpasswd
+            cp /etc/skel/.{bash_profile,bashrc,bash_logout} /root/
+        ;;
+        *) echo "$user:${PASSWORD}" | chroot / chpasswd ;;
+    esac
 }
 
 # }}}
