@@ -231,7 +231,7 @@ configure_user(){
     mkdir /home/$user
     chown $user:$user /home/$user
     echo "$user:${PASSWORD}" | chroot / chpasswd
-    cp /etc/skel/.{bash_profile,bashrc,bash_logout} /home/$user
+    cp -r /etc/skel/.[^.]* /home/$user
     chown -R $user:$user /home/$user
 }
 
