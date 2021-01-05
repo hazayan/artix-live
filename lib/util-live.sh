@@ -223,14 +223,16 @@ configure_branding(){
 }
 
 configure_user(){
-    local user="${1:-artix}"
-    case "$user" in
-        root)
-            echo "root:${PASSWORD}" | chroot / chpasswd
-            cp /etc/skel/.{bash_profile,bashrc,bash_logout} /root/
-        ;;
-        *) echo "$user:${PASSWORD}" | chroot / chpasswd ;;
-    esac
+    local user=root
+    echo "$user:${PASSWORD}" | chroot / chpasswd
+    cp /etc/skel/.{bash_profile,bashrc,bash_logout} /$user/
+
+    user=artix
+    mkdir /home/$user
+    chown $user:$user /home/$user
+    echo "$user:${PASSWORD}" | chroot / chpasswd
+    cp /etc/skel/.{bash_profile,bashrc,bash_logout} /home/$user
+    chown -R $user:$user /home/$user
 }
 
 # }}}

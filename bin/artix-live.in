@@ -15,9 +15,6 @@ echo "Activated swap and added to fstab" >> "${LOGFILE}"
 configure_language
 echo "Finished localization" >> "${LOGFILE}"
 
-configure_user 'root'
-echo "Configured root user" >> "${LOGFILE}"
-
 configure_user
 echo "Configured live user $user with password ${PASSWORD}" >> "${LOGFILE}"
 
