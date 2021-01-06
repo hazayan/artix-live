@@ -60,7 +60,7 @@ detect_desktop_env(){
 }
 
 configure_accountsservice(){
-    local path=/var/lib/AccountsService/users user="${1:-artix}"
+    local path=/var/lib/AccountsService/users user="${1:-@live@}"
     if [ -d "${path}" ] ; then
         echo "[User]" > ${path}/$user
         echo "XSession=${DEFAULT_DESKTOP_FILE}" >> ${path}/$user
@@ -88,7 +88,7 @@ configure_accountsservice(){
 configure_displaymanager(){
     # Try to detect desktop environment
     # Configure display manager
-    local user=artix
+    local user=@live@
 
     if [[ -f /usr/bin/lightdm ]];then
         groupadd -r autologin
@@ -233,7 +233,7 @@ configure_user(){
     echo "$user:${PASSWORD}" | chroot / chpasswd
     cp /etc/skel/.{bash_profile,bashrc,bash_logout} /$user/
 
-    user=artix
+    user=@live@
     mkdir /home/$user
     chown $user:$user /home/$user
     echo "$user:${PASSWORD}" | chroot / chpasswd

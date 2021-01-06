@@ -9,6 +9,7 @@ BINDIR = $(PREFIX)/bin
 LIBDIR = $(PREFIX)/lib
 DATADIR = $(PREFIX)/share
 SYSUSERSDIR = $(PREFIX)/lib/sysusers.d
+LIVEUSER ?= artix
 
 FMODE = -m0644
 DMODE = -dm0755
@@ -49,17 +50,18 @@ XDG = $(wildcard data/*.desktop)
 XBIN = bin/desktop-items
 
 SYSUSERS = \
-	data/sysusers.conf
+	data/sysusers
 
 RM = rm -f
 M4 = m4 -P
 CHMODAW = chmod a-w
 CHMODX = chmod +x
 
-all: $(BIN)
+all: $(BIN) $(SYSUSERS)
 
 EDIT = sed -e "s|@datadir[@]|$(DATADIR)|g" \
-	-e "s|@sysconfdir[@]|$(SYSCONFDIR)|g"
+	-e "s|@sysconfdir[@]|$(SYSCONFDIR)|g" \
+	-e "s|@live[@]|$(LIVEUSER)|g"
 
 %: %.in Makefile lib/util-live.sh
 	@echo "GEN $@"
@@ -70,7 +72,7 @@ EDIT = sed -e "s|@datadir[@]|$(DATADIR)|g" \
 	@bash -O extglob -n "$@"
 
 clean:
-	$(RM) $(BIN)
+	$(RM) $(BIN) $(SYSUSERS)
 
 install_base:
 	install $(DMODE) $(DESTDIR)$(BINDIR)
