@@ -38,9 +38,9 @@ is_valid_de(){
 }
 
 load_desktop_map(){
-    local _space="s| ||g" _clean=':a;N;$!ba;s/\n/ /g' _com_rm="s|#.*||g" \
-        file=/usr/share/artools/desktop.map
-    local desktop_map=$(sed "$_com_rm" "$file" | sed "$_space" | sed "$_clean")
+    local _space="s| ||g" _clean=':a;N;$!ba;s/\n/ /g' _com_rm="s|#.*||g"
+    local file=/usr/share/artools/desktop.map desktop_map
+    desktop_map=$(sed "$_com_rm" "$file" | sed "$_space" | sed "$_clean")
     echo ${desktop_map}
 }
 
@@ -56,17 +56,19 @@ detect_desktop_env(){
             DEFAULT_DESKTOP_EXECUTABLE="$val"
         fi
     done
+    echo "Detected ${DEFAULT_DESKTOP_EXECUTABLE} ${DEFAULT_DESKTOP_FILE}" >> "${LOGFILE}"
 }
 
 configure_accountsservice(){
-    local path=/var/lib/AccountsService/users
+    local path=/var/lib/AccountsService/users user="${1:-artix}"
     if [ -d "${path}" ] ; then
-        echo "[User]" > ${path}/$1
-        echo "XSession=${DEFAULT_DESKTOP_FILE}" >> ${path}/$1
-        if [[ -f "/var/lib/AccountsService/icons/$1.png" ]];then
-            echo "Icon=/var/lib/AccountsService/icons/$1.png" >> ${path}/$1
+        echo "[User]" > ${path}/$user
+        echo "XSession=${DEFAULT_DESKTOP_FILE}" >> ${path}/$user
+        if [[ -f "/var/lib/AccountsService/icons/$user.png" ]];then
+            echo "Icon=/var/lib/AccountsService/icons/$user.png" >> ${path}/$user
         fi
     fi
+    echo "Configured accountsservice" >> "${LOGFILE}"
 }
 
  set_lightdm_greeter(){
@@ -86,7 +88,7 @@ configure_accountsservice(){
 configure_displaymanager(){
     # Try to detect desktop environment
     # Configure display manager
-    local user_name=artix
+    local user=artix
 
     if [[ -f /usr/bin/lightdm ]];then
         groupadd -r autologin
@@ -96,31 +98,32 @@ configure_displaymanager(){
                 sed -i -e "s/^.*user-session=.*/user-session=$DEFAULT_DESKTOP_FILE/" /etc/lightdm/lightdm.conf
         fi
         if ${AUTOLOGIN};then
-            gpasswd -a ${user_name} autologin &> /dev/null
-            sed -i -e "s/^.*autologin-user=.*/autologin-user=${user_name}/" /etc/lightdm/lightdm.conf
+            gpasswd -a $user autologin &> /dev/null
+            sed -i -e "s/^.*autologin-user=.*/autologin-user=$user/" /etc/lightdm/lightdm.conf
             sed -i -e "s/^.*autologin-user-timeout=.*/autologin-user-timeout=0/" /etc/lightdm/lightdm.conf
             sed -i -e "s/^.*pam-autologin-service=.*/pam-autologin-service=lightdm-autologin/" /etc/lightdm/lightdm.conf
         fi
     elif [[ -f /usr/bin/gdm ]];then
         configure_accountsservice "gdm"
         if ${AUTOLOGIN};then
-            sed -i -e "s/\[daemon\]/\[daemon\]\nAutomaticLogin=${user_name}\nAutomaticLoginEnable=True/" /etc/gdm/custom.conf
+            sed -i -e "s/\[daemon\]/\[daemon\]\nAutomaticLogin=$user\nAutomaticLoginEnable=True/" /etc/gdm/custom.conf
         fi
     elif [[ -f /usr/bin/sddm ]];then
         if $(is_valid_de); then
             sed -i -e "s|^Session=.*|Session=$DEFAULT_DESKTOP_FILE.desktop|" /etc/sddm.conf
         fi
         if ${AUTOLOGIN};then
-            sed -i -e "s|^User=.*|User=${user_name}|" /etc/sddm.conf
+            sed -i -e "s|^User=.*|User=$user|" /etc/sddm.conf
         fi
     elif [[ -f /usr/bin/lxdm ]];then
         if $(is_valid_de); then
             sed -i -e "s|^.*session=.*|session=/usr/bin/${DEFAULT_DESKTOP_EXECUTABLE}|" /etc/lxdm/lxdm.conf
         fi
         if ${AUTOLOGIN};then
-            sed -i -e "s/^.*autologin=.*/autologin=${user_name}/" /etc/lxdm/lxdm.conf
+            sed -i -e "s/^.*autologin=.*/autologin=$user/" /etc/lxdm/lxdm.conf
         fi
     fi
+    echo "Configured displaymanager" >> "${LOGFILE}"
 }
 
 gen_pw(){
@@ -207,6 +210,7 @@ configure_language(){
     echo "Configured language: ${lang}" >> "${LOGFILE}"
     echo "Configured keymap: ${keytable}" >> "${LOGFILE}"
     echo "Configured timezone: ${timezone}" >> "${LOGFILE}"
+    echo "Finished localization" >> "${LOGFILE}"
 }
 
 configure_swap(){
@@ -214,11 +218,13 @@ configure_swap(){
     if [ -e "${swapdev}" ]; then
         swapon ${swapdev}
     fi
+    echo "Activated swap and added to fstab" >> "${LOGFILE}"
 }
 
 configure_branding(){
     if [[ -f /usr/bin/neofetch ]]; then
         neofetch >| /etc/issue
+        echo "Configured branding" >> "${LOGFILE}"
     fi
 }
 
@@ -233,6 +239,7 @@ configure_user(){
     echo "$user:${PASSWORD}" | chroot / chpasswd
     cp -r /etc/skel/.[^.]* /home/$user
     chown -R $user:$user /home/$user
+    echo "Configured live user $user with password ${PASSWORD}" >> "${LOGFILE}"
 }
 
 # }}}
@@ -248,7 +255,7 @@ load_live_config(){
 
     AUTOLOGIN=${AUTOLOGIN:-true}
 
-    PASSWORD=${PASSWORD:-"artix"}
+    PASSWORD=${PASSWORD:-artix}
 
     return 0
 }

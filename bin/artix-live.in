@@ -6,26 +6,18 @@ LOGFILE='/var/log/artix-live.log'
 
 CONSOLEFONT="$(kernel_cmdline vconsole.font)"
 CONSOLEMAP="$(kernel_cmdline vconsole.font.map)"
-echo "Got consolefont ${CONSOLEFONT} and consolemap ${CONSOLEMAP}" >> "${LOGFILE}"
+#echo "Got consolefont ${CONSOLEFONT} and consolemap ${CONSOLEMAP}" >> "${LOGFILE}"
 
-# Activate swap
 configure_swap
-echo "Activated swap and added to fstab" >> "${LOGFILE}"
 
 configure_language
-echo "Finished localization" >> "${LOGFILE}"
 
 configure_user
-echo "Configured live user $user with password ${PASSWORD}" >> "${LOGFILE}"
 
 detect_desktop_env
-echo "Detected ${DEFAULT_DESKTOP_EXECUTABLE} ${DEFAULT_DESKTOP_FILE}" >> "${LOGFILE}"
 
-configure_accountsservice "${USER_NAME}"
-echo "Configured accountsservice" >> "${LOGFILE}"
+configure_accountsservice
 
 configure_displaymanager
-echo "Configured displaymanager" >> "${LOGFILE}"
 
 configure_branding
-echo "Configured branding" >> "${LOGFILE}"
