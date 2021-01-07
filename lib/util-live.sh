@@ -37,25 +37,19 @@ is_valid_de(){
     return 1
 }
 
-load_desktop_map(){
-    local _space="s| ||g" _clean=':a;N;$!ba;s/\n/ /g' _com_rm="s|#.*||g"
-    local file=/usr/share/artools/desktop.map desktop_map
-    desktop_map=$(sed "$_com_rm" "$file" | sed "$_space" | sed "$_clean")
-    echo "${desktop_map}"
-}
-
 detect_desktop_env(){
-    local key val map=( "$(load_desktop_map)" )
+    local key val map
+    map=/usr/share/artools/desktop.map
     DEFAULT_DESKTOP_FILE="none"
     DEFAULT_DESKTOP_EXECUTABLE="none"
-    for item in "${map[@]}";do
+    while read -r item; do
         key=${item%:*}
         val=${item#*:}
         if [[ -f /usr/share/xsessions/$key.desktop ]] && [[ -f /usr/bin/$val ]];then
             DEFAULT_DESKTOP_FILE="$key"
             DEFAULT_DESKTOP_EXECUTABLE="$val"
         fi
-    done
+    done < "$map"
     echo "Detected ${DEFAULT_DESKTOP_EXECUTABLE} ${DEFAULT_DESKTOP_FILE}" >> "${LOGFILE}"
 }
 
