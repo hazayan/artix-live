@@ -39,13 +39,13 @@ is_valid_de(){
 
 detect_desktop_env(){
     local key val map
-    map=/usr/share/artools/desktop.map
+    map="${DATADIR}"/artools/desktop.map
     DEFAULT_DESKTOP_FILE="none"
     DEFAULT_DESKTOP_EXECUTABLE="none"
     while read -r item; do
         key=${item%:*}
         val=${item#*:}
-        if [[ -f /usr/share/xsessions/$key.desktop ]] && [[ -f /usr/bin/$val ]];then
+        if [[ -f "${DATADIR}"/xsessions/$key.desktop ]] && [[ -f ${BINDIR}/$val ]];then
             DEFAULT_DESKTOP_FILE="$key"
             DEFAULT_DESKTOP_EXECUTABLE="$val"
         fi
@@ -67,7 +67,7 @@ configure_accountsservice(){
 
  set_lightdm_greeter(){
     local name
-    for g in /usr/share/xgreeters/*.desktop;do
+    for g in "${DATADIR}"/xgreeters/*.desktop;do
         name=${g##*/}
         name=${name%%.*}
         case ${name} in
@@ -84,7 +84,7 @@ configure_displaymanager(){
     # Try to detect desktop environment
     # Configure display manager
 
-    if [[ -f /usr/bin/lightdm ]];then
+    if [[ -f "${BINDIR}"/lightdm ]];then
         groupadd -r autologin
         gpasswd -a "${LIVEUSER}" autologin &> /dev/null
         set_lightdm_greeter
@@ -97,20 +97,20 @@ configure_displaymanager(){
                 -e "s/^.*autologin-user-timeout=.*/autologin-user-timeout=0/" \
                 -e "s/^.*pam-autologin-service=.*/pam-autologin-service=lightdm-autologin/" \
                 -i /etc/lightdm/lightdm.conf
-    elif [[ -f /usr/bin/gdm ]];then
+    elif [[ -f "${BINDIR}"/gdm ]];then
         configure_accountsservice "gdm"
         ${AUTOLOGIN} && sed -e "s/\[daemon\]/\[daemon\]\nAutomaticLogin=${LIVEUSER}\nAutomaticLoginEnable=True/" \
                 -i /etc/gdm/custom.conf
-    elif [[ -f /usr/bin/sddm ]];then
+    elif [[ -f "${BINDIR}"/sddm ]];then
         if is_valid_de; then
             sed -e "s|^Session=.*|Session=$DEFAULT_DESKTOP_FILE.desktop|" \
                 -i /etc/sddm.conf
         fi
         ${AUTOLOGIN} && sed -e "s|^User=.*|User=${LIVEUSER}|" \
                 -i /etc/sddm.conf
-    elif [[ -f /usr/bin/lxdm ]];then
+    elif [[ -f "${BINDIR}"/lxdm ]];then
         if is_valid_de; then
-            sed -e "s|^.*session=.*|session=/usr/bin/${DEFAULT_DESKTOP_EXECUTABLE}|" \
+            sed -e "s|^.*session=.*|session=${BINDIR}/${DEFAULT_DESKTOP_EXECUTABLE}|" \
                 -i /etc/lxdm/lxdm.conf
         fi
         ${AUTOLOGIN} && sed -e "s/^.*autologin=.*/autologin=${LIVEUSER}/" \
@@ -120,7 +120,7 @@ configure_displaymanager(){
 }
 
 find_legacy_keymap(){
-    local file="/usr/share/artools/kbd-model.map" kt="$1"
+    local file="${DATADIR}/artools/kbd-model.map" kt="$1"
     while read -r line || [[ -n $line ]]; do
         if [[ -z $line ]] || [[ $line == \#* ]]; then
             continue
@@ -191,7 +191,7 @@ configure_language(){
 
     echo "KEYMAP=${keytable}" > /etc/vconsole.conf
     echo "LANG=${lang}.UTF-8" > /etc/locale.conf
-    ln -sf /usr/share/zoneinfo/"${timezone}" /etc/localtime
+    ln -sf "${DATADIR}"/zoneinfo/"${timezone}" /etc/localtime
 
     write_x11_config "${keytable}"
 
@@ -216,7 +216,7 @@ configure_swap(){
 }
 
 configure_branding(){
-    if [[ -f /usr/bin/neofetch ]]; then
+    if [[ -f "${BINDIR}"/neofetch ]]; then
         neofetch >| /etc/issue
         echo "Configured branding" >> "${LOGFILE}"
     fi
@@ -255,3 +255,5 @@ load_live_config(){
 load_live_config "@sysconfdir@/artools/live.conf" || load_live_config "@datadir@/artools/live.conf"
 
 LIVEUSER=@live@
+DATADIR=@datadir@
+BINDIR=@bindir@

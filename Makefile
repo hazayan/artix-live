@@ -57,10 +57,11 @@ M4 = m4 -P
 CHMODAW = chmod a-w
 CHMODX = chmod +x
 
-all: $(BIN) $(SYSUSERS)
+all: $(BIN) $(SYSUSERS) $(XBIN)
 
 EDIT = sed -e "s|@datadir[@]|$(DATADIR)|g" \
 	-e "s|@sysconfdir[@]|$(SYSCONFDIR)|g" \
+	-e "s|@bindir[@]|$(BINDIR)|g" \
 	-e "s|@live[@]|$(LIVEUSER)|g"
 
 %: %.in Makefile lib/util-live.sh
@@ -72,7 +73,7 @@ EDIT = sed -e "s|@datadir[@]|$(DATADIR)|g" \
 	@bash -O extglob -n "$@"
 
 clean:
-	$(RM) $(BIN) $(SYSUSERS)
+	$(RM) $(BIN) $(SYSUSERS) $(XBIN)
 
 install_base:
 	install $(DMODE) $(DESTDIR)$(BINDIR)

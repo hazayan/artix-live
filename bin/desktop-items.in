@@ -5,20 +5,20 @@
 xdg-user-dirs-update --force
 
 xdg=$(xdg-user-dir DESKTOP)
-src=/usr/share/applications
+src=@datadir@/applications
 
 # if [[ -f $src/org.kde.konversation.desktop ]]; then
 #     install -m644 $src/org.kde.konversation.desktop \
 #     $xdg/org.kde.konversation.desktop
 # fi
 
-if [[ -f /usr/bin/calamares ]]; then
+if [[ -f @bindir@/calamares ]]; then
     cp -f $src/calamares.desktop "$xdg/"
     sed -i s/Icon.*=calamares/Icon=artixlinux-logo/g "$xdg"/calamares.desktop
     chmod +x "$xdg/calamares.desktop"
 fi
 
-docs=/usr/share/doc/artix
+docs=@datadir@/doc/artix
 
 for f in {Configuration,Troubleshooting}.pdf; do
     ln -s $docs/$f "$xdg"/$f
