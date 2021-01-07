@@ -1,4 +1,4 @@
-# @live@ live user
+# artix live user
 u @live@ 1000 - /home/@live@ /bin/bash
 
 m @live@ video
