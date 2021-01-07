@@ -3,8 +3,6 @@
 export LC_MESSAGES=C
 export LANG=C
 
-LIVEUSER=@live@
-
 # {{{ functions
 
 kernel_cmdline(){
@@ -261,3 +259,5 @@ load_live_config(){
 }
 
 load_live_config "@sysconfdir@/artools/live.conf" || load_live_config "@datadir@/artools/live.conf"
+
+LIVEUSER=@live@
