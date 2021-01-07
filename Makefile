@@ -34,16 +34,17 @@ RUNIT_SV = \
 	data/runit/pacman-init.run
 
 S6_LIVE = \
-	$(wildcard data/s6/artix-live/*)
+	data/s6/artix-live/up \
+	data/s6/artix-live/type
 
 S6_PI = \
-	$(wildcard data/s6/pacman-init/*)
+	data/s6/pacman-init/type \
+	data/s6/pacman-init/up \
+	data/s6/pacman-init/down
 
 S6_BUNDLE = \
-	$(wildcard data/s6/live/*)
-
-S6_SV = \
-	data/s6/pacman-init.run
+	data/s6/live/type \
+	data/s6/live/contents
 
 XDG = $(wildcard data/*.desktop)
 
@@ -57,11 +58,12 @@ M4 = m4 -P
 CHMODAW = chmod a-w
 CHMODX = chmod +x
 
-all: $(BIN) $(SYSUSERS) $(XBIN)
+all: $(BIN) $(SYSUSERS) $(XBIN) $(RC) $(RUNIT_SVD) $(S6_PI) $(S6_LIVE)
 
 EDIT = sed -e "s|@datadir[@]|$(DATADIR)|g" \
 	-e "s|@sysconfdir[@]|$(SYSCONFDIR)|g" \
 	-e "s|@bindir[@]|$(BINDIR)|g" \
+	-e "s|@libdir[@]|$(LIBDIR)|g" \
 	-e "s|@live[@]|$(LIVEUSER)|g"
 
 %: %.in Makefile lib/util-live.sh
@@ -73,7 +75,7 @@ EDIT = sed -e "s|@datadir[@]|$(DATADIR)|g" \
 	@bash -O extglob -n "$@"
 
 clean:
-	$(RM) $(BIN) $(SYSUSERS) $(XBIN)
+	$(RM) $(BIN) $(SYSUSERS) $(XBIN) $(RC) $(RUNIT_SVD) $(S6_PI) $(S6_LIVE)
 
 install_base:
 	install $(DMODE) $(DESTDIR)$(BINDIR)

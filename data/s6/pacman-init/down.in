@@ -1,2 +1,2 @@
-#!/usr/bin/execline -P
+#!@bindir@/execlineb -P
 umount -l /etc/pacman.d/gnupg
