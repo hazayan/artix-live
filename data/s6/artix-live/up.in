@@ -1,0 +1,2 @@
+#!@bindir@/execlineb -P
+exec @bindir@/artix-live

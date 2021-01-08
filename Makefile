@@ -1,4 +1,4 @@
-VERSION = 0.8
+VERSION = 0.10
 
 PKG = live-services
 TOOLS = artools
@@ -8,6 +8,8 @@ PREFIX ?= /usr
 BINDIR = $(PREFIX)/bin
 LIBDIR = $(PREFIX)/lib
 DATADIR = $(PREFIX)/share
+SYSUSERSDIR = $(PREFIX)/lib/sysusers.d
+LIVEUSER ?= artix
 
 FMODE = -m0644
 DMODE = -dm0755
@@ -15,8 +17,6 @@ BMODE = -m0755
 
 BIN = \
 	bin/artix-live
-
-LIBS = $(wildcard lib/*.sh)
 
 SHARED = \
 	$(wildcard data/*.map) \
@@ -34,28 +34,55 @@ RUNIT_SV = \
 	data/runit/pacman-init.run
 
 S6_LIVE = \
-	$(wildcard data/s6/artix-live/*)
+	data/s6/artix-live/up \
+	data/s6/artix-live/type
 
 S6_PI = \
-	$(wildcard data/s6/pacman-init/*)
+	data/s6/pacman-init/type \
+	data/s6/pacman-init/up \
+	data/s6/pacman-init/down
 
 S6_BUNDLE = \
-	$(wildcard data/s6/live/*)
-
-S6_SV = \
-	data/s6/pacman-init.run
+	data/s6/live/type \
+	data/s6/live/contents
 
 XDG = $(wildcard data/*.desktop)
 
 XBIN = bin/desktop-items
 
+SYSUSERS = \
+	data/sysusers
+
+RM = rm -f
+M4 = m4 -P
+CHMODAW = chmod a-w
+CHMODX = chmod +x
+
+all: $(BIN) $(SYSUSERS) $(XBIN) $(RC) $(RUNIT_SVD) $(S6_PI) $(S6_LIVE)
+
+EDIT = sed -e "s|@datadir[@]|$(DATADIR)|g" \
+	-e "s|@sysconfdir[@]|$(SYSCONFDIR)|g" \
+	-e "s|@bindir[@]|$(BINDIR)|g" \
+	-e "s|@libdir[@]|$(LIBDIR)|g" \
+	-e "s|@live[@]|$(LIVEUSER)|g"
+
+%: %.in Makefile lib/util-live.sh
+	@echo "GEN $@"
+	@$(RM) "$@"
+	@{ echo -n 'm4_changequote([[[,]]])'; cat $@.in; } | $(M4) | $(EDIT) >$@
+	@$(CHMODAW) "$@"
+	@$(CHMODX) "$@"
+	@bash -O extglob -n "$@"
+
+clean:
+	$(RM) $(BIN) $(SYSUSERS) $(XBIN) $(RC) $(RUNIT_SVD) $(S6_PI) $(S6_LIVE)
 
 install_base:
 	install $(DMODE) $(DESTDIR)$(BINDIR)
 	install $(BMODE) $(BIN) $(DESTDIR)$(BINDIR)
 
-	install $(DMODE) $(DESTDIR)$(LIBDIR)/$(TOOLS)
-	install $(FMODE) $(LIBS) $(DESTDIR)$(LIBDIR)/$(TOOLS)
+	install $(DMODE) $(DESTDIR)$(SYSUSERSDIR)
+	install $(FMODE) $(SYSUSERS) $(DESTDIR)$(SYSUSERSDIR)/live-artix.conf
 
 	install $(DMODE) $(DESTDIR)$(DATADIR)/$(TOOLS)
 	install $(FMODE) $(SHARED) $(DESTDIR)$(DATADIR)/$(TOOLS)

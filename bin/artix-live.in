@@ -1,0 +1,23 @@
+#!/bin/bash
+
+m4_include(lib/util-live.sh)
+
+LOGFILE='/var/log/artix-live.log'
+
+CONSOLEFONT="$(kernel_cmdline vconsole.font)"
+CONSOLEMAP="$(kernel_cmdline vconsole.font.map)"
+#echo "Got consolefont ${CONSOLEFONT} and consolemap ${CONSOLEMAP}" >> "${LOGFILE}"
+
+configure_swap
+
+configure_language
+
+configure_user
+
+detect_desktop_env
+
+configure_accountsservice
+
+configure_displaymanager
+
+configure_branding

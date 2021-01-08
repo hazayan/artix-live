@@ -1,0 +1,12 @@
+# artix live user
+u @live@ 1000 - /home/@live@ /bin/bash
+
+m @live@ video
+m @live@ power
+m @live@ cdrom
+m @live@ network
+m @live@ lp
+m @live@ scanner
+m @live@ wheel
+m @live@ log
+m @live@ users

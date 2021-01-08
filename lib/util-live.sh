@@ -1,22 +1,15 @@
-#!/bin/bash
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; version 2 of the License.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+#!/hint/bash
 
 export LC_MESSAGES=C
 export LANG=C
+
+# {{{ functions
 
 kernel_cmdline(){
     for param in $(cat /proc/cmdline); do
         case "${param}" in
             $1=*) echo "${param##*=}"; return 0 ;;
-            $1) return 0 ;;
+            "$1") return 0 ;;
             *) continue ;;
         esac
     done
@@ -25,86 +18,63 @@ kernel_cmdline(){
 }
 
 get_lang(){
-    echo $(kernel_cmdline lang)
+    kernel_cmdline lang
 }
 
 get_keytable(){
-    echo $(kernel_cmdline keytable)
+    kernel_cmdline keytable
 }
 
 get_tz(){
-    echo $(kernel_cmdline tz)
-}
-
-load_live_config(){
-
-    [[ -f $1 ]] || return 1
-
-    local live_conf="$1"
-
-    [[ -r ${live_conf} ]] && source ${live_conf}
-
-    AUTOLOGIN=${AUTOLOGIN:-true}
-
-    USER_NAME=${USER_NAME:-"artix"}
-
-    PASSWORD=${PASSWORD:-"artix"}
-
-    ADDGROUPS=${ADDGROUPS:-"video,power,cdrom,network,lp,scanner,wheel,users,log"}
-
-    return 0
+    kernel_cmdline tz
 }
 
 is_valid_de(){
     if [[ ${DEFAULT_DESKTOP_EXECUTABLE} != "none" ]] && \
     [[ ${DEFAULT_DESKTOP_FILE} != "none" ]]; then
         return 0
-    else
-        return 1
     fi
-}
-
-load_desktop_map(){
-    local _space="s| ||g" _clean=':a;N;$!ba;s/\n/ /g' _com_rm="s|#.*||g" \
-        file=/usr/share/artools/desktop.map
-    local desktop_map=$(sed "$_com_rm" "$file" | sed "$_space" | sed "$_clean")
-    echo ${desktop_map}
+    return 1
 }
 
 detect_desktop_env(){
-    local key val map=( $(load_desktop_map) )
+    local key val map
+    map="${DATADIR}"/artools/desktop.map
     DEFAULT_DESKTOP_FILE="none"
     DEFAULT_DESKTOP_EXECUTABLE="none"
-    for item in "${map[@]}";do
+    while read -r item; do
         key=${item%:*}
         val=${item#*:}
-        if [[ -f /usr/share/xsessions/$key.desktop ]] && [[ -f /usr/bin/$val ]];then
+        if [[ -f "${DATADIR}"/xsessions/$key.desktop ]] && [[ -f ${BINDIR}/$val ]];then
             DEFAULT_DESKTOP_FILE="$key"
             DEFAULT_DESKTOP_EXECUTABLE="$val"
         fi
-    done
+    done < "$map"
+    echo "Detected ${DEFAULT_DESKTOP_EXECUTABLE} ${DEFAULT_DESKTOP_FILE}" >> "${LOGFILE}"
 }
 
 configure_accountsservice(){
-    local path=/var/lib/AccountsService/users
+    local path=/var/lib/AccountsService/users user="${1:-${LIVEUSER}}"
     if [ -d "${path}" ] ; then
-        echo "[User]" > ${path}/$1
-        echo "XSession=${DEFAULT_DESKTOP_FILE}" >> ${path}/$1
-        if [[ -f "/var/lib/AccountsService/icons/$1.png" ]];then
-            echo "Icon=/var/lib/AccountsService/icons/$1.png" >> ${path}/$1
+        echo "[User]" > ${path}/"$user"
+        echo "XSession=${DEFAULT_DESKTOP_FILE}" >> ${path}/"$user"
+        if [[ -f "/var/lib/AccountsService/icons/$user.png" ]];then
+            echo "Icon=/var/lib/AccountsService/icons/$user.png" >> ${path}/"$user"
         fi
     fi
+    echo "Configured accountsservice" >> "${LOGFILE}"
 }
 
  set_lightdm_greeter(){
-    local greeters=$(ls /usr/share/xgreeters/*greeter.desktop) name
-    for g in ${greeters[@]};do
+    local name
+    for g in "${DATADIR}"/xgreeters/*.desktop;do
         name=${g##*/}
         name=${name%%.*}
         case ${name} in
             lightdm-gtk-greeter) break ;;
             lightdm-*-greeter)
-                sed -i -e "s/^.*greeter-session=.*/greeter-session=${name}/" /etc/lightdm/lightdm.conf
+                sed -e "s/^.*greeter-session=.*/greeter-session=${name}/" \
+                    -i /etc/lightdm/lightdm.conf
             ;;
         esac
     done
@@ -113,53 +83,50 @@ configure_accountsservice(){
 configure_displaymanager(){
     # Try to detect desktop environment
     # Configure display manager
-    if [[ -f /usr/bin/lightdm ]];then
-        groupadd -r autologin
-        sed -i -e 's/^.*minimum-vt=.*/minimum-vt=7/' /etc/lightdm/lightdm.conf
-        set_lightdm_greeter
-        if $(is_valid_de); then
-                sed -i -e "s/^.*user-session=.*/user-session=$DEFAULT_DESKTOP_FILE/" /etc/lightdm/lightdm.conf
-        fi
-        if ${AUTOLOGIN};then
-            gpasswd -a ${USER_NAME} autologin &> /dev/null
-            sed -i -e "s/^.*autologin-user=.*/autologin-user=${USER_NAME}/" /etc/lightdm/lightdm.conf
-            sed -i -e "s/^.*autologin-user-timeout=.*/autologin-user-timeout=0/" /etc/lightdm/lightdm.conf
-            sed -i -e "s/^.*pam-autologin-service=.*/pam-autologin-service=lightdm-autologin/" /etc/lightdm/lightdm.conf
-        fi
-    elif [[ -f /usr/bin/gdm ]];then
-        configure_accountsservice "gdm"
-        if ${AUTOLOGIN};then
-            sed -i -e "s/\[daemon\]/\[daemon\]\nAutomaticLogin=${USER_NAME}\nAutomaticLoginEnable=True/" /etc/gdm/custom.conf
-        fi
-    elif [[ -f /usr/bin/sddm ]];then
-        if $(is_valid_de); then
-            sed -i -e "s|^Session=.*|Session=$DEFAULT_DESKTOP_FILE.desktop|" /etc/sddm.conf
-        fi
-        if ${AUTOLOGIN};then
-            sed -i -e "s|^User=.*|User=${USER_NAME}|" /etc/sddm.conf
-        fi
-    elif [[ -f /usr/bin/lxdm ]];then
-        if $(is_valid_de); then
-            sed -i -e "s|^.*session=.*|session=/usr/bin/${DEFAULT_DESKTOP_EXECUTABLE}|" /etc/lxdm/lxdm.conf
-        fi
-        if ${AUTOLOGIN};then
-            sed -i -e "s/^.*autologin=.*/autologin=${USER_NAME}/" /etc/lxdm/lxdm.conf
-        fi
-    fi
-}
 
-gen_pw(){
-    echo $(perl -e 'print crypt($ARGV[0], "password")' ${PASSWORD})
+    if [[ -f "${BINDIR}"/lightdm ]];then
+        groupadd -r autologin
+        gpasswd -a "${LIVEUSER}" autologin &> /dev/null
+        set_lightdm_greeter
+        if is_valid_de; then
+            sed -e "s/^.*user-session=.*/user-session=$DEFAULT_DESKTOP_FILE/" \
+                -e 's/^.*minimum-vt=.*/minimum-vt=7/' \
+                -i /etc/lightdm/lightdm.conf
+        fi
+        ${AUTOLOGIN} && sed -e "s/^.*autologin-user=.*/autologin-user=${LIVEUSER}/" \
+                -e "s/^.*autologin-user-timeout=.*/autologin-user-timeout=0/" \
+                -e "s/^.*pam-autologin-service=.*/pam-autologin-service=lightdm-autologin/" \
+                -i /etc/lightdm/lightdm.conf
+    elif [[ -f "${BINDIR}"/gdm ]];then
+        configure_accountsservice "gdm"
+        ${AUTOLOGIN} && sed -e "s/\[daemon\]/\[daemon\]\nAutomaticLogin=${LIVEUSER}\nAutomaticLoginEnable=True/" \
+                -i /etc/gdm/custom.conf
+    elif [[ -f "${BINDIR}"/sddm ]];then
+        if is_valid_de; then
+            sed -e "s|^Session=.*|Session=$DEFAULT_DESKTOP_FILE.desktop|" \
+                -i /etc/sddm.conf
+        fi
+        ${AUTOLOGIN} && sed -e "s|^User=.*|User=${LIVEUSER}|" \
+                -i /etc/sddm.conf
+    elif [[ -f "${BINDIR}"/lxdm ]];then
+        if is_valid_de; then
+            sed -e "s|^.*session=.*|session=${BINDIR}/${DEFAULT_DESKTOP_EXECUTABLE}|" \
+                -i /etc/lxdm/lxdm.conf
+        fi
+        ${AUTOLOGIN} && sed -e "s/^.*autologin=.*/autologin=${LIVEUSER}/" \
+                -i /etc/lxdm/lxdm.conf
+    fi
+    echo "Configured displaymanager" >> "${LOGFILE}"
 }
 
 find_legacy_keymap(){
-    local file="/usr/share/artools/kbd-model.map" kt="$1"
+    local file="${DATADIR}/artools/kbd-model.map" kt="$1"
     while read -r line || [[ -n $line ]]; do
         if [[ -z $line ]] || [[ $line == \#* ]]; then
             continue
         fi
 
-        local mapping=( $line ); # parses columns
+        local mapping=( "$line" ); # parses columns
         if [[ ${#mapping[@]} != 5 ]]; then
             continue
         fi
@@ -175,7 +142,7 @@ find_legacy_keymap(){
         X11_LAYOUT=${mapping[1]}
         X11_MODEL=${mapping[2]}
         X11_VARIANT=${mapping[3]}
-        x11_OPTIONS=${mapping[4]}
+        X11_OPTIONS=${mapping[4]}
     done < $file
 }
 
@@ -201,64 +168,92 @@ write_x11_config(){
 
     local XORGKBLAYOUT="/etc/X11/xorg.conf.d/00-keyboard.conf"
 
-    echo "" >> "$XORGKBLAYOUT"
     echo "Section \"InputClass\"" > "$XORGKBLAYOUT"
-    echo " Identifier \"system-keyboard\"" >> "$XORGKBLAYOUT"
-    echo " MatchIsKeyboard \"on\"" >> "$XORGKBLAYOUT"
-    echo " Option \"XkbLayout\" \"$X11_LAYOUT\"" >> "$XORGKBLAYOUT"
-    echo " Option \"XkbModel\" \"$X11_MODEL\"" >> "$XORGKBLAYOUT"
-    echo " Option \"XkbVariant\" \"$X11_VARIANT\"" >> "$XORGKBLAYOUT"
-    echo " Option \"XkbOptions\" \"$X11_OPTIONS\"" >> "$XORGKBLAYOUT"
-    echo "EndSection" >> "$XORGKBLAYOUT"
+    {
+    echo " Identifier \"system-keyboard\""
+    echo " MatchIsKeyboard \"on\""
+    echo " Option \"XkbLayout\" \"$X11_LAYOUT\""
+    echo " Option \"XkbModel\" \"$X11_MODEL\""
+    echo " Option \"XkbVariant\" \"$X11_VARIANT\""
+    echo " Option \"XkbOptions\" \"$X11_OPTIONS\""
+    echo "EndSection"
+    } >> "$XORGKBLAYOUT"
 }
 
 configure_language(){
     # hack to be able to set the locale on bootup
-    local lang=$(get_lang)
-    local keytable=$(get_keytable)
-    local timezone=$(get_tz)
+    local lang keytable timezone
+    lang=$(get_lang)
+    keytable=$(get_keytable)
+    timezone=$(get_tz)
 
     sed -e "s/#${lang}.UTF-8/${lang}.UTF-8/" -i /etc/locale.gen
 
-    if [[ -d /run/openrc ]]; then
-        sed -i "s/keymap=.*/keymap=\"${keytable}\"/" /etc/conf.d/keymaps
-    fi
     echo "KEYMAP=${keytable}" > /etc/vconsole.conf
     echo "LANG=${lang}.UTF-8" > /etc/locale.conf
-    ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
+    ln -sf "${DATADIR}"/zoneinfo/"${timezone}" /etc/localtime
 
     write_x11_config "${keytable}"
 
     loadkeys "${keytable}"
 
-    locale-gen ${lang}
-    echo "Configured language: ${lang}" >> "${LOGFILE}"
-    echo "Configured keymap: ${keytable}" >> "${LOGFILE}"
-    echo "Configured timezone: ${timezone}" >> "${LOGFILE}"
+    locale-gen "${lang}"
+    {
+    echo "Configured language: ${lang}"
+    echo "Configured keymap: ${keytable}"
+    echo "Configured timezone: ${timezone}"
+    echo "Finished localization"
+    } >> "${LOGFILE}"
 }
 
 configure_swap(){
-    local swapdev="$(fdisk -l 2>/dev/null | grep swap | cut -d' ' -f1)"
+    local swapdev
+    swapdev="$(fdisk -l 2>/dev/null | grep swap | cut -d' ' -f1)"
     if [ -e "${swapdev}" ]; then
-        swapon ${swapdev}
+        swapon "${swapdev}"
     fi
+    echo "Activated swap and added to fstab" >> "${LOGFILE}"
 }
 
 configure_branding(){
-    if [[ -f /usr/bin/neofetch ]]; then
+    if [[ -f "${BINDIR}"/neofetch ]]; then
         neofetch >| /etc/issue
+        echo "Configured branding" >> "${LOGFILE}"
     fi
 }
 
 configure_user(){
-    local user="$1"
-    if [[ "$user" == 'root' ]];then
-        echo "root:${PASSWORD}" | chroot / chpasswd
-        cp /etc/skel/.{bash_profile,bashrc,bash_logout} /root/
-    else
-        local args=(-m -G ${ADDGROUPS} -s /bin/bash $user)
-        # set up user and password
-        [[ -n ${PASSWORD} ]] && args+=(-p $(gen_pw))
-        useradd "${args[@]}"
-    fi
+    echo "root:${PASSWORD}" | chroot / chpasswd
+    cp /etc/skel/.{bash_profile,bashrc,bash_logout} /root/
+
+    mkdir /home/${LIVEUSER}
+    chown ${LIVEUSER}:${LIVEUSER} /home/${LIVEUSER}
+    echo "${LIVEUSER}:${PASSWORD}" | chroot / chpasswd
+    cp -r /etc/skel/.[^.]* /home/${LIVEUSER}
+    chown -R ${LIVEUSER}:${LIVEUSER} /home/${LIVEUSER}
+    echo "Configured live user ${LIVEUSER} with password ${PASSWORD}" >> "${LOGFILE}"
 }
+
+# }}}
+
+
+load_live_config(){
+
+    [[ -f $1 ]] || return 1
+
+    local live_conf="$1"
+
+    [[ -r "${live_conf}" ]] && source "${live_conf}"
+
+    AUTOLOGIN=${AUTOLOGIN:-true}
+
+    PASSWORD=${PASSWORD:-artix}
+
+    return 0
+}
+
+load_live_config "@sysconfdir@/artools/live.conf" || load_live_config "@datadir@/artools/live.conf"
+
+LIVEUSER=@live@
+DATADIR=@datadir@
+BINDIR=@bindir@
