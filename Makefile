@@ -46,6 +46,12 @@ S6_BUNDLE = \
 	data/s6/live/type \
 	data/s6/live/contents
 
+66_LIVE = \
+	data/66/artix-live
+
+66_PI = \
+	data/66/pacman-init
+
 XDG = $(wildcard data/*.desktop)
 
 XBIN = bin/desktop-items
@@ -112,6 +118,12 @@ install_s6:
 
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/s6/sv/live
 	install $(BMODE) $(S6_BUNDLE) $(DESTDIR)$(SYSCONFDIR)/s6/sv/live/
+
+install_66:
+	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/66/service
+
+	install $(FMODE) $(66_LIVE) $(DESTDIR)$(SYSCONFDIR)/66/service/artix-live
+	install $(FMODE) $(66_PI) $(DESTDIR)$(SYSCONFDIR)/66/service/pacman-init
 
 install_xdg:
 	install -dm0755 $(DESTDIR)$(PREFIX)/bin
