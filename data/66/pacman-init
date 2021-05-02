@@ -1,8 +1,9 @@
 [main]
 @type = oneshot
 @description = "pacman init service"
-@version = 0.0.1
-@user = (root)
+@version = 0.0.2
+@user = ( root )
+@extdepends = ( haveged )
 
 [start]
 @execute = (
