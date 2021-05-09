@@ -12,9 +12,7 @@ op="$1"; shift
 case "$op" in
   #hwdb)     /usr/bin/udev-hwdb --usr update ;;
   hwdb)     /usr/bin/udevadm hwdb --update ;;
-
   udev-reload)   udevd_live;   /usr/bin/udevadm control --reload ;;
-
   *) echo >&2 "  Invalid operation '$op'"; exit 1 ;;
 esac
 
