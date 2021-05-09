@@ -1,0 +1,11 @@
+[Trigger]
+Type = Path
+Operation = Install
+Operation = Upgrade
+Operation = Remove
+Target = etc/s6/sv/*
+
+[Action]
+Description = Updating s6-rc database...
+When = PostTransaction
+Exec = /usr/share/libalpm/scripts/s6-rc-db-update-hook

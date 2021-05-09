@@ -1,0 +1,44 @@
+#!/bin/sh -e
+
+s6_live() {
+  if [ ! -L /run/s6-rc ]; then
+    echo >&2 "  Skipped: s6-rc is not running."
+    exit 0
+  fi
+}
+
+svc_help(){
+    echo "	==> Start/stop a service:"
+    echo "  s6-rc -u/-d change <service>"
+}
+
+svc_add_help(){
+    echo "	==> Add a service:"
+    echo "  s6-rc-bundle-update add default <service>"
+    svc_help
+}
+
+svc_del_help(){
+    echo "	==> Remove a service:"
+    echo "  s6-rc-bundle-update delete default <service>"
+    svc_help
+}
+
+each_conf() {
+  while read -r f; do
+    "$@" "/$f"
+  done
+}
+
+op="$1"; shift
+
+case $op in
+  sysctl)   s6_live; each_conf /usr/bin/sysctl -q -p ;;
+  binfmt)   s6_live; /etc/s6/sv/binfmt/shell_up ;;
+    # For use by other packages
+  add)      svc_add_help ;;
+  del)      svc_del_help ;;
+  *) echo >&2 "  Invalid operation '$op'"; exit 1 ;;
+esac
+
+exit 0

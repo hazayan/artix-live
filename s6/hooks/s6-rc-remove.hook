@@ -1,0 +1,10 @@
+[Trigger]
+Type = Path
+Operation = Remove
+Target = etc/s6/sv/*
+
+[Action]
+Description = Displaying s6-rc service help ...
+When = PostTransaction
+Exec = /usr/share/libalpm/scripts/s6-rc-hook del
+NeedsTargets
