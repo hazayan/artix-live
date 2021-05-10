@@ -92,13 +92,13 @@ cmd_add() {
     pos="$1"
     bundle_action_check "$pos" 3
 
-    old=$(db_action contents "${BUNDLE}")
+    old="$(db_action contents "${BUNDLE}")"
 
     bundle_action delete "${BUNDLE}"
 
-    if ! bundle_action add "${BUNDLE}" "$old" "${CONTENTS}"; then
+    if ! bundle_action add "${BUNDLE}" $old ${CONTENTS}; then
         bundle_add_err_msg
-        bundle_action add "${BUNDLE}" "$old"
+        bundle_action add "${BUNDLE}" $old
     fi
 }
 
@@ -106,10 +106,10 @@ cmd_delete() {
     pos="$1"
     bundle_action_check "$pos" 3
 
-    old=$(bundle_to_backup)
+    old="$(bundle_to_backup)"
 
     bundle_action delete "${BUNDLE}"
-    bundle_action add "${BUNDLE}" "$old"
+    bundle_action add "${BUNDLE}" $old
 }
 
 cmd_list() {
