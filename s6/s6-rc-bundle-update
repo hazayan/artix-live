@@ -31,7 +31,7 @@ bundle_add_err_msg() {
 }
 
 cmd_help() {
-    echo "${CMD_MSG} help"
+    echo "${CMD_UPD} help"
     echo "${CMD_UPD} add bundlename contents..."
     echo "${CMD_UPD} delete bundlename contents..."
     echo "${CMD_UPD} list bundlename"
