@@ -8,23 +8,23 @@ init_conf(){
 }
 
 init_detect(){
-    local init
-    if [ -f /usr/bin/openrc-init ];then
-        init=$(basename /usr/bin/openrc-init)
-    elif [ -f /usr/bin/runit-init ];then
-        init=$(basename /usr/bin/runit-init)
-    elif [ -f /usr/bin/s6-init ];then
-        init=$(basename /usr/bin/s6-init)
-    elif [ -f /usr/bin/suite66-init ];then
-        init=$(basename /usr/bin/suite66-init)
-    fi
+    artix_inits="openrc-init runit-init s6-init suite66-init"
+    for supported in ${artix_inits}; do
+        bin=/usr/bin/"$supported"
+        if [ -f "$bin" ];then
+            init=$(basename "$bin")
+        fi
+    done
+
     if [ -n "$init" ];then
         echo "	==> Found $init"
         ln -sf "$init" "/usr/bin/init"
+    else
+        echo "	==> No supported init found."
     fi
 }
 
-case $1 in
+case "$1" in
     update) init_conf ;;
     detect) init_detect ;;
     *) echo >&2 "  Invalid operation '$1'"; exit 1 ;;
