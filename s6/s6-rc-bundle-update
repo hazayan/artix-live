@@ -62,7 +62,7 @@ bundle_to_backup() {
 
     for entry in ${CONTENTS}; do
 
-        isbundle=$(db_action type "${BUNDLE}" 2> /dev/null)
+        isbundle=$(db_action type "$entry" 2> /dev/null)
 
         entrycontents=$entry
         if [ "$isbundle" = "bundle" ]; then
@@ -70,7 +70,7 @@ bundle_to_backup() {
         fi
 
         for srv in $entrycontents; do
-            if ! echo "$backup" | grep -w "$srv"; then
+            if ! echo $backup | grep -w "$srv" > /dev/null; then
                 bundle_entry_err_msg "$entry"
             else
                 oldupdated=""
@@ -107,6 +107,10 @@ cmd_delete() {
     bundle_action_check "$pos" 3
 
     old="$(bundle_to_backup)"
+    if [ "$?" = 1 ]; then
+        echo $old
+        exit 1
+    fi
 
     bundle_action delete "${BUNDLE}"
     bundle_action add "${BUNDLE}" $old
