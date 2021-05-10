@@ -1,0 +1,10 @@
+[Trigger]
+Type = Path
+Operation = Remove
+Target = etc/s6/sv/*
+
+[Action]
+Description = Removing service ...
+When = PreTransaction
+Exec = /usr/share/libalpm/scripts/s6-rc-hook rm_sv
+NeedsTargets
