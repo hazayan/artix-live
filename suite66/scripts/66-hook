@@ -24,6 +24,12 @@ svc_del_help(){
     svc_help
 }
 
+reload_dbus() {
+  dbus-send --print-reply --system --type=method_call \
+            --dest=org.freedesktop.DBus \
+            / org.freedesktop.DBus.ReloadConfig > /dev/null
+}
+
 each_conf() {
   while read -r f; do
     "$@" "/$f"
@@ -31,13 +37,16 @@ each_conf() {
 }
 
 op="$1"; shift
+sv="$2"
 
 case $op in
   sysctl)   66_live; each_conf /usr/bin/sysctl -q -p ;;
   binfmt)   66_live; /etc/66/script/binfmt.sh ;;
+  dbus_reload)  66_live; reload_dbus ;;
     # For use by other packages
   add)      svc_add_help ;;
   del)      svc_del_help ;;
+  longrun_restart) 66_live; 66-svctl -r "$sv"
   *) echo >&2 "  Invalid operation '$op'"; exit 1 ;;
 esac
 
