@@ -1,0 +1,11 @@
+[Trigger]
+Type = Path
+Operation = Install
+Operation = Upgrade
+Target = etc/66/service/*
+
+[Action]
+Description = Displaying 66 service help ...
+When = PostTransaction
+Exec = /usr/share/libalpm/scripts/66-hook add
+NeedsTargets
