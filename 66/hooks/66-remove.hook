@@ -1,0 +1,10 @@
+[Trigger]
+Type = Path
+Operation = Remove
+Target = etc/66/service/*
+
+[Action]
+Description = Displaying 66 service help ...
+When = PostTransaction
+Exec = /usr/share/libalpm/scripts/66-hook del
+NeedsTargets
