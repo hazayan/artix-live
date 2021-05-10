@@ -10,11 +10,6 @@ bundle_action() {
     s6-rc-bundle -c "${DATABASE}" "$@"
 }
 
-bundle_type() {
-    name="$1"
-    s6-rc-db -c "${DATABASE}" type "$name" 2> /dev/null
-}
-
 db_err_msg() {
     echo "${CMD_UPD}: fatal: unable to take lock on ${DATABASE} Permission denied"
     exit 1
@@ -51,7 +46,7 @@ bundle_action_check() {
         exit 1
     fi
 
-    isbundle=$(bundle_type "${BUNDLE}")
+    isbundle=$(db_action type "${BUNDLE}" 2> /dev/null)
 
     if [ "$?" = 111 ]; then
         db_err_msg
@@ -67,7 +62,7 @@ bundle_to_backup() {
 
     for entry in ${CONTENTS}; do
 
-        isbundle=$(bundle_type "$entry")
+        isbundle=$(db_action type "${BUNDLE}" 2> /dev/null)
 
         entrycontents=$entry
         if [ "$isbundle" = "bundle" ]; then
