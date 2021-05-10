@@ -45,13 +45,13 @@ SVPATH='/etc/s6/sv'
 TIMESTAMP=$(date +%s)
 
 if [ -e "${DBPATH}" ]; then
-    old_bundles=$(db_action list bundles)
+    old_bundles="$(db_action list bundles)"
 #     len=0
 #     len=$(echo $old_bundles | wc -w)
     for bundle in $old_bundles; do
 #         contents[$len]=$(db_action contents "$i")
 #         len=$(( len + 1 ))
-        contents+=" $(db_action contents "$bundle")"
+        contents="$contents $(db_action contents "$bundle")"
     done
 fi
 
