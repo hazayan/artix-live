@@ -95,7 +95,8 @@ bundle_to_backup() {
 }
 
 cmd_add() {
-    bundle_action_check "$#" 3
+    local pos="$1"
+    bundle_action_check "$pos" 3
 
     old=$(db_action contents "${BUNDLE}")
 
@@ -108,7 +109,8 @@ cmd_add() {
 }
 
 cmd_delete() {
-    bundle_action_check "$#" 3
+    local pos="$1"
+    bundle_action_check "$pos" 3
 
     old=$(bundle_to_backup)
 
@@ -117,7 +119,8 @@ cmd_delete() {
 }
 
 cmd_list() {
-    bundle_action_check "$#" 2
+    local pos="$1"
+    bundle_action_check "$pos" 2
 
     db_action contents "${BUNDLE}"
 }
@@ -158,8 +161,8 @@ done
 
 case "${COMMAND}" in
     help) cmd_help ;;
-    add) cmd_add ;;
-    delete) cmd_delete ;;
-    list) cmd_list ;;
+    add) cmd_add "$#" ;;
+    delete) cmd_delete "$#" ;;
+    list) cmd_list "$#" ;;
     *) echo "${HELP_MSG}" ;;
 esac
