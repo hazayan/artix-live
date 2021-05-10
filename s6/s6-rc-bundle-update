@@ -12,7 +12,7 @@ bundle_action() {
 
 bundle_type() {
     name="$1"
-    s6-rc-bundle -c "${DATABASE}" type "$name" 2> /dev/null
+    s6-rc-db -c "${DATABASE}" type "$name" 2> /dev/null
 }
 
 db_err_msg() {
