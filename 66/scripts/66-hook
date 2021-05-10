@@ -1,0 +1,44 @@
+#!/bin/sh -e
+
+66_live() {
+  if [ ! -L /run/66 ]; then
+    echo >&2 "  Skipped: 66 is not running."
+    exit 0
+  fi
+}
+
+svc_help(){
+    echo "	==> Start/stop a service:"
+    echo "  66-start <service>"
+}
+
+svc_add_help(){
+    echo "	==> Add a service:"
+    echo "  66-enable <service>"
+    svc_help
+}
+
+svc_del_help(){
+    echo "	==> Remove a service:"
+    echo "  66-disable <service>"
+    svc_help
+}
+
+each_conf() {
+  while read -r f; do
+    "$@" "/$f"
+  done
+}
+
+op="$1"; shift
+
+case $op in
+  sysctl)   66_live; each_conf /usr/bin/sysctl -q -p ;;
+  binfmt)   66_live; /etc/66/script/binfmt.sh ;;
+    # For use by other packages
+  add)      svc_add_help ;;
+  del)      svc_del_help ;;
+  *) echo >&2 "  Invalid operation '$op'"; exit 1 ;;
+esac
+
+exit 0
