@@ -46,10 +46,12 @@ TIMESTAMP=$(date +%s)
 
 if [ -e "${DBPATH}" ]; then
     old_bundles=$(db_action list bundles)
-    len=0
-    for i in $old_bundles; do
-        contents[$len]=$(db_action contents "$i")
-        len=$(( len + 1 ))
+#     len=0
+#     len=$(echo $old_bundles | wc -w)
+    for bundle in $old_bundles; do
+#         contents[$len]=$(db_action contents "$i")
+#         len=$(( len + 1 ))
+        contents+=" $(db_action contents "$bundle")"
     done
 fi
 
@@ -73,9 +75,10 @@ all_services=$(db_action list all)
 
 
 if [ -n "$old_bundles" ]; then
-    len=0
+#     len=0
     for m in $old_bundles; do
-        old_contents=${contents[$len]}
+#         old_contents=${contents[$len]}
+        old_contents=$contents
         a_newbundle "$m"
         ret=$?
 
@@ -84,7 +87,7 @@ if [ -n "$old_bundles" ]; then
             ret2=$?
 
             if [ $ret -eq 1 ]; then
-                if test $ret2 -eq 0; then
+                if [ $ret2 -eq 0 ]; then
                     new_contents="$new_contents $n"
                 fi
             else
@@ -106,7 +109,7 @@ if [ -n "$old_bundles" ]; then
         fi
 
         new_contents=""
-        len=$(( len + 1 ))
+#         len=$(( len + 1 ))
     done
 fi
 
