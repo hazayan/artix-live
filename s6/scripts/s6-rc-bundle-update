@@ -1,119 +1,148 @@
 #!/bin/sh
 
-BUNDLENAME=""
-c_arg=false
+db_action() {
+    s6-rc-db -c "${DATABASE}" "$@"
+}
+
+bundle_action() {
+    s6-rc-bundle -c "${DATABASE}" "$@"
+}
+
+BUNDLE=""
 COMMAND=""
 CONTENTS=""
 DATABASE="/run/s6-rc/compiled"
-HELP_MSG="s6-rc-bundle-update: usage: s6-rc-bundle-update [ -c compiled ] command... (use s6-rc-bundle-update help for more information)"
+
+CMD="s6-rc-bundle"
+CMD_UPD="${CMD}-update"
+HELP_MSG="${CMD_UPD}: usage: ${CMD_UPD} [ -c compiled ] command... (use ${CMD_UPD} help for more information)"
+
+c_arg=false
+
 for arg in "$@"; do
-	if [ "$c_arg" = true ]; then
-		DATABASE=$arg
-		c_arg=false
-		continue
-	fi
-	if [ "$arg" = "-c" ]; then
-		c_arg=true
-		continue
-	fi
-	if [ "$COMMAND" = "" ]; then
-		COMMAND=$arg
-		continue
-	fi
-	if [ "$BUNDLENAME" = "" ]; then
-		BUNDLENAME=$arg
-		continue
-	fi
-	CONTENTS="${CONTENTS} $arg"
+    if [ "$c_arg" = true ]; then
+        DATABASE=$arg
+        c_arg=false
+        continue
+    fi
+    if [ "$arg" = "-c" ]; then
+        c_arg=true
+        continue
+    fi
+    if [ "${COMMAND}" = "" ]; then
+        COMMAND=$arg
+        continue
+    fi
+    if [ "${BUNDLE}" = "" ]; then
+        BUNDLE=$arg
+        continue
+    fi
+    CONTENTS="${CONTENTS} $arg"
 done
 
-case $COMMAND in
+case "${COMMAND}" in
     help)
-	echo "s6-rc-bundle-update help"
-	echo "s6-rc-bundle-update add bundlename contents..."
-	echo "s6-rc-bundle-update delete bundlename contents..."
-	echo "s6-rc-bundle-update list bundlename";;
-
+        echo "${CMD_MSG} help"
+        echo "${CMD_UPD} add bundlename contents..."
+        echo "${CMD_UPD} delete bundlename contents..."
+        echo "${CMD_UPD} list bundlename"
+    ;;
     add)
-	if [ "$#" -lt 3 ]; then
-		echo "$HELP_MSG"
-		exit 1
-	fi
-	isbundle=$(s6-rc-db -c $DATABASE type "$BUNDLENAME" 2> /dev/null)
-	if [ "$?" = 111 ]; then
-		echo "s6-rc-bundle-update: fatal: unable to take lock on $DATABASE: Permission denied"
-		exit 1
-	fi
-	if [ "$isbundle" != "bundle" ]; then
-		echo "$BUNDLENAME is not an existing bundle. Create it with s6-rc-bundle."
-		exit 1
-	fi
+        if [ "$#" -lt 3 ]; then
+            echo "${HELP_MSG}"
+            exit 1
+        fi
 
-	old=$(s6-rc-db -c $DATABASE contents $BUNDLENAME)
-	s6-rc-bundle -c $DATABASE delete $BUNDLENAME
-	ret=$(s6-rc-bundle -c $DATABASE add $BUNDLENAME $old $CONTENTS)
-	if [ "$?" != 0 ]; then
-		echo "Error when trying to add $CONTENTS!"
-		s6-rc-bundle -c $DATABASE add $BUNDLENAME $old
-	fi;;
-    
+        isbundle=$(db_action type "${BUNDLE}" 2> /dev/null)
+
+        if [ "$?" = 111 ]; then
+            echo "${CMD_UPD}: fatal: unable to take lock on ${DATABASE} Permission denied"
+            exit 1
+        fi
+
+        if [ "$isbundle" != "bundle" ]; then
+            echo "${BUNDLE} is not an existing bundle. Create it with ${CMD}."
+            exit 1
+        fi
+
+        old=$(db_action contents "${BUNDLE}")
+
+        bundle_action delete "${BUNDLE}"
+
+        if ! bundle_action add "${BUNDLE}" "$old" "${CONTENTS}"; then
+            echo "Error when trying to add ${CONTENTS}!"
+            bundle_action add "${BUNDLE}" "$old"
+        fi
+    ;;
     delete)
-	if [ "$#" -lt 3 ]; then
-		echo "$HELP_MSG"
-		exit 1
-	fi
-	isbundle=$(s6-rc-db -c $DATABASE type "$BUNDLENAME" 2> /dev/null)
-	if [ "$?" = 111 ]; then
-		echo "s6-rc-bundle-update: fatal: unable to take lock on $DATABASE: Permission denied"
-		exit 1
-	fi
-	if [ "$isbundle" != "bundle" ]; then
-		echo "$BUNDLENAME is not an existing bundle. Create it with s6-rc-bundle"
-		exit 1
-	fi
-	old=$(s6-rc-db -c $DATABASE contents $BUNDLENAME)
-	for entry in $CONTENTS; do
-		isbundle=$(s6-rc-db -c $DATABASE type "$entry" 2> /dev/null)
-		if [ "$isbundle" = "bundle" ]; then
-			entrycontents=$(s6-rc-db -c $DATABASE contents $entry)
-		else
-			entrycontents=$entry
-		fi
-		for srv in $entrycontents; do
-			ret=$(echo $old | grep -w $srv)
-			if [ "$?" != 0 ]; then
-				echo "$entry does not exist in bundle $BUNDLENAME!"
-				exit 1
-			else
-				oldupdated=""
-				for oldsrv in $old; do
-					if [ "$oldsrv" != "$srv" ]; then
-						oldupdated="${oldupdated} $oldsrv"
-					fi
-				done
-				old=$oldupdated
-			fi
-		done
-	done
-	s6-rc-bundle -c $DATABASE delete $BUNDLENAME
-	s6-rc-bundle -c $DATABASE add $BUNDLENAME $old;;
-    
-    list)
-	if [ "$#" -lt 2 ]; then
-		echo "$HELP_MSG"
-		exit 1
-	fi
-	isbundle=$(s6-rc-db -c $DATABASE type "$BUNDLENAME" 2> /dev/null)
-	if [ "$?" = 111 ]; then
-		echo "s6-rc-bundle-update: fatal: unable to take lock on $DATABASE: Permission denied"
-		exit 1
-	fi
-	if [ "$isbundle" != "bundle" ]; then
-		echo "$BUNDLENAME is not an existing bundle. Create it with s6-rc-bundle"
-		exit 1
-	fi
-	echo "$(s6-rc-db -c $DATABASE contents $BUNDLENAME)";;
+        if [ "$#" -lt 3 ]; then
+            echo "${HELP_MSG}"
+            exit 1
+        fi
 
-    *)
-	echo "$HELP_MSG";;
+        isbundle=$(db_action type "${BUNDLE}" 2> /dev/null)
+
+        if [ "$?" = 111 ]; then
+            echo "${CMD_UPD}: fatal: unable to take lock on ${DATABASE} Permission denied"
+            exit 1
+        fi
+
+        if [ "$isbundle" != "bundle" ]; then
+            echo "${BUNDLE} is not an existing bundle. Create it with ${CMD}"
+            exit 1
+        fi
+
+        old=$(db_action contents "${BUNDLE}")
+
+        for entry in ${CONTENTS}; do
+
+            isbundle=$(db_action type "$entry" 2> /dev/null)
+
+            if [ "$isbundle" = "bundle" ]; then
+                entrycontents=$(db_action contents "$entry")
+            else
+                entrycontents=$entry
+            fi
+
+            for srv in $entrycontents; do
+                if ! echo "$old" | grep -w "$srv"; then
+                    echo "$entry does not exist in bundle ${BUNDLE}!"
+                    exit 1
+                else
+                    oldupdated=""
+                    for oldsrv in $old; do
+                        if [ "$oldsrv" != "$srv" ]; then
+                            oldupdated="${oldupdated} $oldsrv"
+                        fi
+                    done
+                    old=$oldupdated
+                fi
+            done
+
+        done
+
+        bundle_action delete "${BUNDLE}"
+        bundle_action add "${BUNDLE}" "$old"
+    ;;
+    list)
+        if [ "$#" -lt 2 ]; then
+            echo "${HELP_MSG}"
+            exit 1
+        fi
+
+        isbundle=$(db_action type "${BUNDLE}" 2> /dev/null)
+
+        if [ "$?" = 111 ]; then
+            echo "${CMD_UPD}: fatal: unable to take lock on ${DATABASE} Permission denied"
+            exit 1
+        fi
+
+        if [ "$isbundle" != "bundle" ]; then
+            echo "${BUNDLE} is not an existing bundle. Create it with ${CMD}"
+            exit 1
+        fi
+
+        db_action contents "${BUNDLE}"
+    ;;
+    *) echo "${HELP_MSG}" ;;
 esac
