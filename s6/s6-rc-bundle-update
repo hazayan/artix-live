@@ -11,7 +11,7 @@ bundle_action() {
 }
 
 bundle_type() {
-    local name="$1"
+    name="$1"
     s6-rc-bundle -c "${DATABASE}" type "$name" 2> /dev/null
 }
 
@@ -26,7 +26,7 @@ bundle_err_msg() {
 }
 
 bundle_entry_err_msg() {
-    local name="$1"
+    name="$1"
     echo "$name does not exist in bundle ${BUNDLE}!"
     exit 1
 }
@@ -43,8 +43,8 @@ cmd_help() {
 }
 
 bundle_action_check() {
-    local pos="$1"
-    local num="$2"
+    pos="$1"
+    num="$2"
 
     if [ "$pos" -lt "$num" ]; then
         echo "${HELP_MSG}"
@@ -63,7 +63,6 @@ bundle_action_check() {
 }
 
 bundle_to_backup() {
-    local backup
     backup=$(db_action contents "${BUNDLE}")
 
     for entry in ${CONTENTS}; do
@@ -95,7 +94,7 @@ bundle_to_backup() {
 }
 
 cmd_add() {
-    local pos="$1"
+    pos="$1"
     bundle_action_check "$pos" 3
 
     old=$(db_action contents "${BUNDLE}")
@@ -109,7 +108,7 @@ cmd_add() {
 }
 
 cmd_delete() {
-    local pos="$1"
+    pos="$1"
     bundle_action_check "$pos" 3
 
     old=$(bundle_to_backup)
@@ -119,7 +118,7 @@ cmd_delete() {
 }
 
 cmd_list() {
-    local pos="$1"
+    pos="$1"
     bundle_action_check "$pos" 2
 
     db_action contents "${BUNDLE}"
