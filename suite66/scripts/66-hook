@@ -46,7 +46,7 @@ case $op in
     # For use by other packages
   add)      svc_add_help ;;
   del)      svc_del_help ;;
-  longrun_restart) 66_live; 66-svctl -r "$sv"
+  longrun_restart) 66_live; 66-svctl -r "$sv" ;;
   *) echo >&2 "  Invalid operation '$op'"; exit 1 ;;
 esac
 
