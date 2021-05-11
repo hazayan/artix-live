@@ -10,6 +10,7 @@ suite66_live() {
 svc_help(){
     echo "	==> Start/stop a service:"
     echo "  66-start <service>"
+    echo "  66-stop <service>"
 }
 
 svc_add_help(){
