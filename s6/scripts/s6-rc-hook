@@ -24,6 +24,28 @@ svc_del_help(){
     svc_help
 }
 
+reload_dbus() {
+    dbus-send --print-reply --system --type=method_call \
+            --dest=org.freedesktop.DBus \
+            / org.freedesktop.DBus.ReloadConfig > /dev/null
+}
+
+shutdown_service() {
+  while read -r dir; do
+    if [ -d "$dir" ] && [ "$dir" != "etc/s6/sv/" ]; then
+      sv=$(basename "$dir")
+      if [ -e /run/s6-rc/servicedirs/"$sv" ]; then
+        s6-rc -d change "$sv"
+        s6-svc -x /run/s6-rc/servicedirs/"$sv"
+      fi
+    fi
+  done
+}
+
+restart_service() {
+    s6-svc -r /run/service/"$sv"
+}
+
 each_conf() {
   while read -r f; do
     "$@" "/$f"
@@ -31,13 +53,17 @@ each_conf() {
 }
 
 op="$1"; shift
+sv="$2"
 
 case $op in
   sysctl)   s6_live; each_conf /usr/bin/sysctl -q -p ;;
   binfmt)   s6_live; /etc/s6/sv/binfmt/shell_up ;;
+  dbus_reload) s6_live; reload_dbus ;;
     # For use by other packages
   add)      svc_add_help ;;
   del)      svc_del_help ;;
+  longrun_restart) s6_live; restart_service ;;
+  shutdown_sv) shutdown_service ;;
   *) echo >&2 "  Invalid operation '$op'"; exit 1 ;;
 esac
 

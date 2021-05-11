@@ -1,0 +1,10 @@
+[Trigger]
+Type = Path
+Operation = Remove
+Target = etc/s6/sv/*
+
+[Action]
+Description = Shutting down services ...
+When = PreTransaction
+Exec = /usr/share/libalpm/scripts/s6-rc-hook shutdown_sv
+NeedsTargets

@@ -1,0 +1,166 @@
+#!/bin/sh
+
+# {{{ functions
+
+db_action() {
+    s6-rc-db -c "${DATABASE}" "$@"
+}
+
+bundle_action() {
+    s6-rc-bundle -c "${DATABASE}" "$@"
+}
+
+db_err_msg() {
+    echo "${CMD_UPD}: fatal: unable to take lock on ${DATABASE} Permission denied"
+    exit 1
+}
+
+bundle_err_msg() {
+    echo "${BUNDLE} is not an existing bundle. Create it with ${CMD}."
+    exit 1
+}
+
+bundle_entry_err_msg() {
+    name="$1"
+    echo "$name does not exist in bundle ${BUNDLE}!"
+    exit 1
+}
+
+bundle_add_err_msg() {
+    echo "Error when trying to add ${CONTENTS}!"
+}
+
+cmd_help() {
+    echo "${CMD_UPD} help"
+    echo "${CMD_UPD} add bundlename contents..."
+    echo "${CMD_UPD} delete bundlename contents..."
+    echo "${CMD_UPD} list bundlename"
+}
+
+bundle_action_check() {
+    pos="$1"
+    num="$2"
+
+    if [ "$pos" -lt "$num" ]; then
+        echo "${HELP_MSG}"
+        exit 1
+    fi
+
+    isbundle=$(db_action type "${BUNDLE}" 2> /dev/null)
+
+    if [ "$?" = 111 ]; then
+        db_err_msg
+    fi
+
+    if [ "$isbundle" != "bundle" ]; then
+        bundle_err_msg
+    fi
+}
+
+bundle_to_backup() {
+    backup=$(db_action contents "${BUNDLE}")
+
+    for entry in ${CONTENTS}; do
+
+        isbundle=$(db_action type "$entry" 2> /dev/null)
+
+        entrycontents=$entry
+        if [ "$isbundle" = "bundle" ]; then
+            entrycontents=$(db_action contents "$entry")
+        fi
+
+        for srv in $entrycontents; do
+            if ! echo $backup | grep -w "$srv" > /dev/null; then
+                bundle_entry_err_msg "$entry"
+            else
+                oldupdated=""
+                for oldsrv in $backup; do
+                    if [ "$oldsrv" != "$srv" ]; then
+                        oldupdated="${oldupdated} $oldsrv"
+                    fi
+                done
+                backup=$oldupdated
+            fi
+        done
+
+    done
+
+    echo "$backup"
+}
+
+cmd_add() {
+    pos="$1"
+    bundle_action_check "$pos" 3
+
+    old="$(db_action contents "${BUNDLE}")"
+
+    bundle_action delete "${BUNDLE}"
+
+    if ! bundle_action add "${BUNDLE}" $old ${CONTENTS}; then
+        bundle_add_err_msg
+        bundle_action add "${BUNDLE}" $old
+    fi
+}
+
+cmd_delete() {
+    pos="$1"
+    bundle_action_check "$pos" 3
+
+    old="$(bundle_to_backup)"
+    if [ "$?" = 1 ]; then
+        echo $old
+        exit 1
+    fi
+
+    bundle_action delete "${BUNDLE}"
+    bundle_action add "${BUNDLE}" $old
+}
+
+cmd_list() {
+    pos="$1"
+    bundle_action_check "$pos" 2
+
+    db_action contents "${BUNDLE}"
+}
+
+# }}}
+
+BUNDLE=""
+COMMAND=""
+CONTENTS=""
+DATABASE="/run/s6-rc/compiled"
+
+CMD="s6-rc-bundle"
+CMD_UPD="${CMD}-update"
+HELP_MSG="${CMD_UPD}: usage: ${CMD_UPD} [ -c compiled ] command... (use ${CMD_UPD} help for more information)"
+
+c_arg=false
+
+for arg in "$@"; do
+    if [ "$c_arg" = true ]; then
+        DATABASE=$arg
+        c_arg=false
+        continue
+    fi
+    if [ "$arg" = "-c" ]; then
+        c_arg=true
+        continue
+    fi
+    if [ "${COMMAND}" = "" ]; then
+        COMMAND=$arg
+        continue
+    fi
+    if [ "${BUNDLE}" = "" ]; then
+        BUNDLE=$arg
+        continue
+    fi
+    CONTENTS="${CONTENTS} $arg"
+done
+
+case "${COMMAND}" in
+    help) cmd_help ;;
+    add) cmd_add "$#" ;;
+    delete) cmd_delete "$#" ;;
+    list) cmd_list "$#" ;;
+    *) echo "${HELP_MSG}" ;;
+esac

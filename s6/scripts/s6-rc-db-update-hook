@@ -1,34 +1,14 @@
 #!/bin/bash
-if [ -e "/etc/s6/rc/compiled" ]; then
-    old_bundles=$(s6-rc-db -c /etc/s6/rc/compiled list bundles)
-    len=0
-    for i in $old_bundles; do
-        contents[$len]=$(s6-rc-db -c /etc/s6/rc/compiled contents $i)
-        len=$(($len + 1))
-    done
-fi
 
-timestamp=$(date +%s)
-ret=$(s6-rc-compile /etc/s6/rc/compiled-$timestamp /etc/s6/sv)
-if [[ "$?" != 0 ]]; then
-    echo "Error compiling database. Please double check the /etc/s6/sv directories. Exiting."
-    exit 1
-fi
-if [ -e "/run/s6-rc" ]; then
-    s6-rc-update /etc/s6/rc/compiled-$timestamp
-fi
-if [ -d "/etc/s6/rc/compiled" ]; then
-    ln -sf /etc/s6/rc/compiled-$timestamp /etc/s6/rc/compiled/compiled && mv -f /etc/s6/rc/compiled/compiled /etc/s6/rc
-else
-    ln -sf /etc/s6/rc/compiled-$timestamp /etc/s6/rc/compiled
-fi
+# {{{ functions
 
-new_bundles=$(s6-rc-db -c /etc/s6/rc/compiled list bundles)
-all_services=$(s6-rc-db -c /etc/s6/rc/compiled list all)
+db_action() {
+    s6-rc-db -c "${DBPATH}" "$@"
+}
 
 a_newbundle() {
     for j in $new_bundles; do
-        if [ $j == $1 ]; then
+        if [ "$j" = "$1" ]; then
             return 0
         fi
     done
@@ -37,7 +17,7 @@ a_newbundle() {
 
 service_exists() {
     for k in $all_services; do
-        if [ $k == $1 ]; then
+        if [ "$k" = "$1" ]; then
             return 0
         fi
     done
@@ -45,44 +25,90 @@ service_exists() {
 }
 
 in_newbundle() {
-    bundle_contents=$(s6-rc-db -c /etc/s6/rc/compiled contents $1)
+    bundle_contents=$(db_action contents "$1")
     for l in $bundle_contents; do
-        if [ $l == $2 ]; then
+        if [ "$l" = "$2" ]; then
             return 0
         fi
     done
     return 1
 }
 
-if test -n "$old_bundles"; then
+# }}}
+
+
+# main
+
+RCPATH='/etc/s6/rc'
+DBPATH="${RCPATH}/compiled"
+SVPATH='/etc/s6/sv'
+TIMESTAMP=$(date +%s)
+
+if [ -e "${DBPATH}" ]; then
+    old_bundles="$(db_action list bundles)"
     len=0
-    for m in $old_bundles; do
-        old_contents=${contents[$len]}
-        a_newbundle $m
-        ret=$?
-        for n in $old_contents; do
-            service_exists $n
-            ret2=$?
-            if test $ret -eq 1; then
-                if test $ret2 -eq 0; then
-                    new_contents=$new_contents" "$n
-                fi
-            else
-                if test $ret2 -eq 0; then
-                    in_newbundle $m $n
-                    ret3=$?
-                    if test $ret3 -eq 1; then
-                        s6-rc-bundle-update -c /etc/s6/rc/compiled add $m $n
-                    fi
-                fi
-            fi
-        done
-        if test -n "$new_contents"; then
-            s6-rc-bundle -c /etc/s6/rc/compiled add $m $new_contents
-        fi
-        new_contents=""
-        len=$(($len + 1))
+    for bundle in $old_bundles; do
+        contents[$len]=$(db_action contents "$bundle")
+        len=$(( len + 1 ))
     done
 fi
 
-echo "Switched to a new database. Feel free to remove any old unwanted/unneeded database directories in /etc/s6/rc."
+if ! s6-rc-compile "${DBPATH}"-"${TIMESTAMP}" "${SVPATH}"; then
+    echo "Error compiling database."
+    echo "Please double check the ${SVPATH} directories. Exiting."
+    exit 1
+fi
+
+[ -e "/run/s6-rc" ] && s6-rc-update "${DBPATH}"-"${TIMESTAMP}"
+
+if [ -d "${DBPATH}" ]; then
+    ln -sf "${DBPATH}"-"${TIMESTAMP}" "${DBPATH}"/compiled
+    mv -f "${DBPATH}"/compiled "${RCPATH}"
+else
+    ln -sf "${DBPATH}"-"${TIMESTAMP}" "${DBPATH}"
+fi
+
+new_bundles=$(db_action list bundles)
+all_services=$(db_action list all)
+
+
+if [ -n "$old_bundles" ]; then
+    len=0
+    for m in $old_bundles; do
+        old_contents=${contents[$len]}
+        a_newbundle "$m"
+        ret=$?
+
+        for n in $old_contents; do
+            service_exists "$n"
+            ret2=$?
+
+            if [ $ret -eq 1 ]; then
+                if [ $ret2 -eq 0 ]; then
+                    new_contents="$new_contents $n"
+                fi
+            else
+                if [ $ret2 -eq 0 ]; then
+                    in_newbundle "$m" "$n"
+                    ret3=$?
+
+                    if [ $ret3 -eq 1 ]; then
+                        s6-rc-bundle-update -c "${DBPATH}" add "$m" "$n"
+                    fi
+
+                fi
+            fi
+
+        done
+
+        if [ -n "$new_contents" ]; then
+            s6-rc-bundle -c "${DBPATH}" add "$m" "$new_contents"
+        fi
+
+        new_contents=""
+        len=$(( len + 1 ))
+    done
+fi
+
+echo "==> Switched to a new database."
+echo "    Remove any old unwanted/unneeded database directories in ${RCPATH}."
