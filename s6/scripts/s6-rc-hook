@@ -30,20 +30,16 @@ reload_dbus() {
             / org.freedesktop.DBus.ReloadConfig > /dev/null
 }
 
-remove_each_service() {
-    while read -r sv; do
-        if [ -e /run/service/"$sv"-srv ]; then
-            s6-rc -d change "$sv"
-        fi
-    done
-}
-
-remove_each_service_log() {
-    while read -r sv; do
-        if [ -e /etc/s6/sv/"$sv"-log ]; then
-            rm -rf /etc/s6/sv/"$sv"-log
-        fi
-    done
+shutdown_service() {
+  while read -r dir; do
+    if [ -d "$dir" ] && [ "$dir" != "etc/s6/sv/" ]; then
+      sv=$(basename "$dir")
+      if [ -e /run/s6-rc/servicedirs/"$sv" ]; then
+        s6-rc -d change "$sv"
+        s6-svc -x /run/s6-rc/servicedirs/"$sv"
+      fi
+    fi
+  done
 }
 
 restart_service() {
@@ -67,8 +63,7 @@ case $op in
   add)      svc_add_help ;;
   del)      svc_del_help ;;
   longrun_restart) s6_live; restart_service ;;
-  rm_sv) remove_service ;;
-  rm_sv_log) remove_service_log ;;
+  shutdown_sv) shutdown_service ;;
   *) echo >&2 "  Invalid operation '$op'"; exit 1 ;;
 esac
 
