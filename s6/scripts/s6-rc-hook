@@ -46,7 +46,12 @@ shutdown_service() {
 }
 
 restart_service() {
-    s6-svc -r /run/service/"$sv"
+  if [ -e /run/s6-rc/servicedirs/"$sv" ]; then
+    s6-svc -r /run/s6-rc/servicedirs/"$sv"
+  fi
+  if [ -e /run/s6-rc/servicedirs/"$sv"-srv ]; then
+    s6-svc -r /run/s6-rc/servicedirs/"$sv"-srv
+  fi
 }
 
 each_conf() {
