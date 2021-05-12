@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-66_live() {
+suite66_live() {
   if [ ! -L /run/66 ]; then
     echo >&2 "  Skipped: 66 is not running."
     exit 0
@@ -10,6 +10,7 @@
 svc_help(){
     echo "	==> Start/stop a service:"
     echo "  66-start <service>"
+    echo "  66-stop <service>"
 }
 
 svc_add_help(){
@@ -40,13 +41,13 @@ op="$1"; shift
 sv="$2"
 
 case $op in
-  sysctl)   66_live; each_conf /usr/bin/sysctl -q -p ;;
-  binfmt)   66_live; /etc/66/script/binfmt.sh ;;
-  dbus_reload)  66_live; reload_dbus ;;
+  sysctl)   suite66_live; each_conf /usr/bin/sysctl -q -p ;;
+  binfmt)   suite66_live; /etc/66/script/binfmt.sh ;;
+  dbus_reload)  suite66_live; reload_dbus ;;
     # For use by other packages
   add)      svc_add_help ;;
   del)      svc_del_help ;;
-  longrun_restart) 66_live; 66-svctl -r "$sv" ;;
+  longrun_restart) suite66_live; 66-svctl -r "$sv" ;;
   *) echo >&2 "  Invalid operation '$op'"; exit 1 ;;
 esac
 
