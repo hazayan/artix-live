@@ -92,7 +92,7 @@ install_openrc_dbus: install_hook_common
 install_s6_cronie: install_hook_common
 	install $(MODE) $(S6CRONIEHOOKS) $(DESTDIR)$(HOOKSDIR)
 
-install_a6_at: install_hook_common
+install_s6_at: install_hook_common
 	install $(MODE) $(S6ATDHOOKS) $(DESTDIR)$(HOOKSDIR)
 
 install_s6_dbus: install_hook_common
