@@ -42,6 +42,7 @@ in_newbundle() {
 RCPATH='/etc/s6/rc'
 DBPATH="${RCPATH}/compiled"
 SVPATH='/etc/s6/sv'
+SVDIRS='/run/s6-rc/servicedirs'
 TIMESTAMP=$(date +%s)
 
 if [ -e "${DBPATH}" ]; then
@@ -59,7 +60,14 @@ if ! s6-rc-compile "${DBPATH}"-"${TIMESTAMP}" "${SVPATH}"; then
     exit 1
 fi
 
-[ -e "/run/s6-rc" ] && s6-rc-update "${DBPATH}"-"${TIMESTAMP}"
+if [ -e "/run/s6-rc" ]; then
+    for dir in ${SVDIRS}/*; do
+        if [ -e "${dir}/down" ]; then
+            s6-svc -x "${dir}"
+        fi
+    done
+    s6-rc-update "${DBPATH}"-"${TIMESTAMP}"
+fi
 
 if [ -d "${DBPATH}" ]; then
     ln -sf "${DBPATH}"-"${TIMESTAMP}" "${DBPATH}"/compiled

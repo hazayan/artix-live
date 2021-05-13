@@ -38,9 +38,6 @@ shutdown_service() {
       if [ -n $active ]; then
         s6-rc -d change "$sv"
       fi
-      if [ -e /run/s6-rc/servicedirs/"$sv" ]; then
-        s6-svc -x /run/s6-rc/servicedirs/"$sv"
-      fi
     fi
   done
 }
