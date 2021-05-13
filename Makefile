@@ -43,8 +43,7 @@ DMODE = -dm0755
 MODE = -m0644
 EMODE = -m0755
 
-install_common:
-	install $(DMODE) $(DESTDIR)$(SCRIPTSDIR)
+install_hook_common:
 	install $(DMODE) $(DESTDIR)$(HOOKSDIR)
 
 install_s6_extra:
@@ -81,29 +80,29 @@ install_suite66: install_common
 	install $(EMODE) $(SUITE66SCRIPTS) $(DESTDIR)$(SCRIPTSDIR)
 	install $(MODE) $(SUITE66HOOKS) $(DESTDIR)$(HOOKSDIR)
 
-install_openrc_cronie: install_common
+install_openrc_cronie: install_hook_common
 	install $(MODE) $(OPENRCCRONIEHOOKS) $(DESTDIR)$(HOOKSDIR)
 
-install_openrc_at: install_common
+install_openrc_at: install_hook_common
 	install $(MODE) $(OPENRCATDHOOKS) $(DESTDIR)$(HOOKSDIR)
 
-install_openrc_dbus: install_common
+install_openrc_dbus: install_hook_common
 	install $(MODE) $(OPENRCDBUSHOOKS) $(DESTDIR)$(HOOKSDIR)
 
-install_s6_cronie: install_common
+install_s6_cronie: install_hook_common
 	install $(MODE) $(S6CRONIEHOOKS) $(DESTDIR)$(HOOKSDIR)
 
-install_a6_at: install_common
+install_a6_at: install_hook_common
 	install $(MODE) $(S6ATDHOOKS) $(DESTDIR)$(HOOKSDIR)
 
-install_s6_dbus: install_common
+install_s6_dbus: install_hook_common
 	install $(MODE) $(S6DBUSHOOKS) $(DESTDIR)$(HOOKSDIR)
 
-install_suite66_cronie: install_common
+install_suite66_cronie: install_hook_common
 	install $(MODE) $(SUITE66CRONIEHOOKS) $(DESTDIR)$(HOOKSDIR)
 
-install_suite66_dbus: install_common
+install_suite66_dbus: install_hook_common
 	install $(MODE) $(SUITE66DBUSHOOKS) $(DESTDIR)$(HOOKSDIR)
 
-install_suite66_at: install_common
+install_suite66_at: install_hook_common
 	install $(MODE) $(SUITE66ATDHOOKS) $(DESTDIR)$(HOOKSDIR)
