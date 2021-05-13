@@ -8,6 +8,7 @@ OPENRCHOOKS = $(wildcard openrc/hooks/*)
 
 OPENRCCRONIEHOOKS = $(wildcard openrc/cronie-hooks/*)
 OPENRCDBUSHOOKS = $(wildcard openrc/dbus-hooks/*)
+OPENRCATDHOOKS = $(wildcard openrc/atd-hooks/*)
 
 RUNITSCRIPTS = $(wildcard runit/scripts/*)
 RUNITHOOKS = $(wildcard runit/hooks/*)
@@ -19,12 +20,14 @@ S6EXTRA = s6/s6-rc-bundle-update
 
 S6CRONIEHOOKS = $(wildcard s6/cronie-hooks/*)
 S6DBUSHOOKS = $(wildcard s6/dbus-hooks/*)
+S6ATDHOOKS = $(wildcard s6/atd-hooks/*)
 
 SUITE66SCRIPTS = $(wildcard suite66/scripts/*)
 SUITE66HOOKS = $(wildcard suite66/hooks/*)
 
 SUITE66CRONIEHOOKS = $(wildcard suite66/cronie-hooks/*)
 SUITE66DBUSHOOKS = $(wildcard suite66/dbus-hooks/*)
+SUITE66ATDHOOKS = $(wildcard suite66/atd-hooks/*)
 
 UDEVSCRIPTS = $(wildcard udev/scripts/*)
 UDEVHOOKS = $(wildcard udev/hooks/*)
@@ -81,11 +84,17 @@ install_suite66: install_common
 install_openrc_cronie: install_common
 	install $(MODE) $(OPENRCCRONIEHOOKS) $(DESTDIR)$(HOOKSDIR)
 
+install_openrc_at: install_common
+	install $(MODE) $(OPENRCATDHOOKS) $(DESTDIR)$(HOOKSDIR)
+
 install_openrc_dbus: install_common
 	install $(MODE) $(OPENRCDBUSHOOKS) $(DESTDIR)$(HOOKSDIR)
 
 install_s6_cronie: install_common
 	install $(MODE) $(S6CRONIEHOOKS) $(DESTDIR)$(HOOKSDIR)
+
+install_a6_at: install_common
+	install $(MODE) $(S6ATDHOOKS) $(DESTDIR)$(HOOKSDIR)
 
 install_s6_dbus: install_common
 	install $(MODE) $(S6DBUSHOOKS) $(DESTDIR)$(HOOKSDIR)
@@ -95,3 +104,6 @@ install_suite66_cronie: install_common
 
 install_suite66_dbus: install_common
 	install $(MODE) $(SUITE66DBUSHOOKS) $(DESTDIR)$(HOOKSDIR)
+
+install_suite66_at: install_common
+	install $(MODE) $(SUITE66ATDHOOKS) $(DESTDIR)$(HOOKSDIR)
