@@ -2,6 +2,9 @@
 
 init_conf(){
     while read -r f; do
+        if [ "$(basename "$f")" = "s6-init" ]; then
+            s6_init_remake
+        fi
         ln -sf "$(basename "$f")" "/usr/bin/init"
         echo "	==> Activated $(basename "$f")"
     done
@@ -18,10 +21,23 @@ init_detect(){
 
     if [ -n "$init" ];then
         echo "	==> Found $init"
+        if [ "$init" = "s6-init" ]; then
+            s6_init_remake
+        fi
         ln -sf "$init" "/usr/bin/init"
     else
         echo "	==> No supported init found."
     fi
+}
+
+s6_init_remake(){
+    # we need to ensure that s6-linux-init-maker is run on every machine
+    rm -rf /tmp/current
+    s6-linux-init-maker -1 -G "/usr/bin/agetty -L -8 tty1 115200" -c /etc/s6/current /tmp/current
+    mv /tmp/current/bin/init /tmp/current/bin/s6-init
+    cp -a /tmp/current/bin /usr
+    rm -rf /tmp/current/{bin,scripts}
+    cp -a /tmp/current /etc/s6
 }
 
 case "$1" in
