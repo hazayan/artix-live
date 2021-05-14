@@ -44,7 +44,7 @@ shutdown_service() {
 
 restart_service() {
   if [ -e /run/s6-rc/servicedirs/"$1" ]; then
-    s6-svc -r /run/s6-rc/servicedirs/"$s1"
+    s6-svc -r /run/s6-rc/servicedirs/"$1"
   fi
   if [ -e /run/s6-rc/servicedirs/"$1"-srv ]; then
     s6-svc -r /run/s6-rc/servicedirs/"$1"-srv
@@ -58,7 +58,6 @@ each_conf() {
 }
 
 op="$1"; shift
-sv="$2"
 
 case $op in
   sysctl)   s6_live; each_conf /usr/bin/sysctl -q -p ;;
@@ -67,7 +66,7 @@ case $op in
     # For use by other packages
   add)      svc_add_help ;;
   del)      svc_del_help ;;
-  longrun_restart) s6_live; restart_service "$sv" ;;
+  longrun_restart) s6_live; restart_service "$1" ;;
   shutdown_sv) s6_live; shutdown_service ;;
   *) echo >&2 "  Invalid operation '$op'"; exit 1 ;;
 esac
