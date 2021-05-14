@@ -43,6 +43,10 @@ DMODE = -dm0755
 MODE = -m0644
 EMODE = -m0755
 
+install_common:
+	install $(DMODE) $(DESTDIR)$(SCRIPTSDIR)
+	install $(DMODE) $(DESTDIR)$(HOOKSDIR)
+
 install_hook_common:
 	install $(DMODE) $(DESTDIR)$(HOOKSDIR)
 
@@ -106,3 +110,5 @@ install_suite66_dbus: install_hook_common
 
 install_suite66_at: install_hook_common
 	install $(MODE) $(SUITE66ATDHOOKS) $(DESTDIR)$(HOOKSDIR)
+
+.PHONY: install install_base install_s6 install_openrc install_runit install_suite66
