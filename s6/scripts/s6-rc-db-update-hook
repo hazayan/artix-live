@@ -110,7 +110,7 @@ if [ -n "$old_bundles" ]; then
         done
 
         if [ -n "$new_contents" ]; then
-            s6-rc-bundle -c "${DBPATH}" add "$m" "$new_contents"
+            s6-rc-bundle -c "${DBPATH}" add "$m" $new_contents
         fi
 
         new_contents=""
