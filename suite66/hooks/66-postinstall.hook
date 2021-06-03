@@ -1,0 +1,10 @@
+[Trigger]
+Operation = Install 
+Type = Package
+Target = suite66-base
+Target = 66
+
+[Action]
+Description = Creating initial boot and default tree 
+When = PostTransaction
+Exec = /usr/share/libalpm/scripts/66-postinstall

@@ -1,0 +1,9 @@
+#!/usr/bin/sh
+if [ ! -d /var/lib/66/system/boot ]; then
+  66-tree -n boot
+  66-enable -t boot boot@system
+fi
+
+if [ ! -d /var/lib/66/system/default ]; then
+  66-tree -ncE default
+fi
