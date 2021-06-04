@@ -1,0 +1,2 @@
+#!/usr/bin/sh
+66-enable -t boot -F boot@system

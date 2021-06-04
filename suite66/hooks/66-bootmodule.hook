@@ -1,0 +1,10 @@
+[Trigger]
+Operation = Upgrade
+Type = Package
+Target = suite66-scripts
+Target = 66
+
+[Action]
+Description = Updating boot tree module 
+When = PostTransaction
+Exec = /usr/share/libalpm/scripts/66-bootmodule
