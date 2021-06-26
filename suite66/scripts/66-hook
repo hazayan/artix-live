@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
 suite66_live() {
-  if [ ! -L /run/66 ]; then
+  if [ ! -d /run/dbus ]; then
     echo >&2 "  Skipped: 66 is not running."
     exit 0
   fi
