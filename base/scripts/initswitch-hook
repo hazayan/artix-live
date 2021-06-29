@@ -33,7 +33,7 @@ init_detect(){
 s6_init_remake(){
     # we need to ensure that s6-linux-init-maker is run on every machine
     rm -rf /tmp/current
-    s6-linux-init-maker -1 -G "/usr/bin/agetty -L -8 tty1 115200" -c /etc/s6/current /tmp/current
+    s6-linux-init-maker -1 -G "/usr/bin/agetty -H fallback-getty -L -8 tty7 115200" -c /etc/s6/current /tmp/current
     mv /tmp/current/bin/init /tmp/current/bin/s6-init
     cp -a /tmp/current/bin /usr
     rm -rf /tmp/current/{bin,scripts}
