@@ -61,7 +61,7 @@ if ! s6-rc-compile "${DBPATH}"-"${TIMESTAMP}" "${SVPATH}"; then
 fi
 
 if [ -e "/run/s6-rc" ]; then
-    for dir in ${SVDIRS}/*; do
+    for dir in "${SVDIRS}"/*; do
         if [ -e "${dir}/down" ]; then
             s6-svc -x "${dir}"
         fi
