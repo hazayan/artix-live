@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # {{{ functions
 
@@ -7,8 +7,8 @@ db_action() {
 }
 
 a_newbundle() {
-    for j in $new_bundles; do
-        if [ "$j" = "$1" ]; then
+    for i in $new_bundles; do
+        if [ "$i" = "$1" ]; then
             return 0
         fi
     done
@@ -16,8 +16,8 @@ a_newbundle() {
 }
 
 service_exists() {
-    for k in $all_services; do
-        if [ "$k" = "$1" ]; then
+    for j in $all_services; do
+        if [ "$j" = "$1" ]; then
             return 0
         fi
     done
@@ -26,8 +26,8 @@ service_exists() {
 
 in_newbundle() {
     bundle_contents=$(db_action contents "$1")
-    for l in $bundle_contents; do
-        if [ "$l" = "$2" ]; then
+    for k in $bundle_contents; do
+        if [ "$k" = "$2" ]; then
             return 0
         fi
     done
@@ -46,12 +46,17 @@ SVDIRS='/run/s6-rc/servicedirs'
 TIMESTAMP=$(date +%s)
 
 if [ -e "${DBPATH}" ]; then
-    old_bundles="$(db_action list bundles)"
-    len=0
-    for bundle in $old_bundles; do
-        contents[$len]=$(db_action contents "$bundle")
-        len=$(( len + 1 ))
-    done
+    # Print contents of older bundles, using the format:
+    # <name1>
+    # <sv1> <sv2> <sv3> ... <svN>
+    # <name2>
+    # <sv1> ... <svN>
+    old_bundle_contents=$(
+        for bundle in $(db_action list bundles); do
+	        printf '%s\n' \
+                "$bundle" "$(db_action contents "$bundle" | paste -sd" ")"
+	    done
+    )
 fi
 
 if ! s6-rc-compile "${DBPATH}"-"${TIMESTAMP}" "${SVPATH}"; then
@@ -78,44 +83,33 @@ fi
 new_bundles=$(db_action list bundles)
 all_services=$(db_action list all)
 
+while read -r l && read -r old_contents; do
+    CMD='s6-rc-bundle'
 
-if [ -n "$old_bundles" ]; then
-    len=0
-    for m in $old_bundles; do
-        old_contents=${contents[$len]}
-        a_newbundle "$m"
-        ret=$?
+    a_newbundle "$l"
+    ret=$?
 
-        for n in $old_contents; do
-            service_exists "$n"
-            ret2=$?
-
-            if [ $ret -eq 1 ]; then
-                if [ $ret2 -eq 0 ]; then
-                    new_contents="$new_contents $n"
-                fi
-            else
-                if [ $ret2 -eq 0 ]; then
-                    in_newbundle "$m" "$n"
-                    ret3=$?
-
-                    if [ $ret3 -eq 1 ]; then
-                        s6-rc-bundle-update -c "${DBPATH}" add "$m" "$n"
-                    fi
-
-                fi
+    for m in $old_contents; do
+        # We should handle the service if it exists and either:
+        # [ $ret -eq 1 ] -> the bundle it is in not doesn't exist yet
+        # ! in_newbundle -> it's not in the bundle it used to be in
+        if service_exists "$m"; then
+            if [ $ret -eq 1 ] || ! in_newbundle "$l" "$m"; then
+                new_contents="$new_contents $m"
             fi
-
-        done
-
-        if [ -n "$new_contents" ]; then
-            s6-rc-bundle -c "${DBPATH}" add "$m" $new_contents
         fi
-
-        new_contents=""
-        len=$(( len + 1 ))
     done
-fi
+
+    # If bundle exists, we're only going to update it
+    [ $ret -eq 1 ] || CMD="$CMD-update"
+
+    # Add or update bundle
+    [ -z "$new_contents" ] || "$CMD" -c "${DBPATH}" add "$l" $new_contents
+
+    new_contents=''
+done <<EOF
+$old_bundle_contents
+EOF
 
 echo "==> Switched to a new database."
 echo "    Remove any old unwanted/unneeded database directories in ${RCPATH}."
