@@ -70,8 +70,7 @@ if [ -e "/run/s6-rc" ]; then
 fi
 
 if [ -d "${DBPATH}" ]; then
-    ln -sf "${DBPATH}"-"${TIMESTAMP}" "${DBPATH}"/compiled
-    mv -f "${DBPATH}"/compiled "${RCPATH}"
+    ln -sf "${DBPATH}"-"${TIMESTAMP}" "${DBPATH}"/compiled && mv -f "${DBPATH}"/compiled "${RCPATH}"
 else
     ln -sf "${DBPATH}"-"${TIMESTAMP}" "${DBPATH}"
 fi
