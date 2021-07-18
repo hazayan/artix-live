@@ -7,8 +7,8 @@ db_action() {
 }
 
 a_newbundle() {
-    for j in $new_bundles; do
-        if [ "$j" = "$1" ]; then
+    for i in $new_bundles; do
+        if [ "$i" = "$1" ]; then
             return 0
         fi
     done
@@ -16,8 +16,8 @@ a_newbundle() {
 }
 
 service_exists() {
-    for k in $all_services; do
-        if [ "$k" = "$1" ]; then
+    for j in $all_services; do
+        if [ "$j" = "$1" ]; then
             return 0
         fi
     done
@@ -26,8 +26,8 @@ service_exists() {
 
 in_newbundle() {
     bundle_contents=$(db_action contents "$1")
-    for l in $bundle_contents; do
-        if [ "$l" = "$2" ]; then
+    for k in $bundle_contents; do
+        if [ "$k" = "$2" ]; then
             return 0
         fi
     done
@@ -83,24 +83,24 @@ fi
 new_bundles=$(db_action list bundles)
 all_services=$(db_action list all)
 
-while read -r m && read -r old_contents; do
-    a_newbundle "$m"
+while read -r l && read -r old_contents; do
+    a_newbundle "$l"
     ret=$?
 
-    for n in $old_contents; do
+    for m in $old_contents; do
 
-        if service_exists "$n"; then
+        if service_exists "$m"; then
             if [ $ret -eq 1 ]; then
                 # No bundle exists, queue its creation
-                new_contents="$new_contents $n"
-            elif ! in_newbundle "$m" "$n"; then
+                new_contents="$new_contents $m"
+            elif ! in_newbundle "$l" "$m"; then
                 # bundle exists, but service isn't in it, add it
-                s6-rc-bundle-update -c "${DBPATH}" add "$m" "$n"
+                s6-rc-bundle-update -c "${DBPATH}" add "$l" "$m"
             fi
         fi
 
         if [ -n "$new_contents" ]; then
-            s6-rc-bundle -c "${DBPATH}" add "$m" $new_contents
+            s6-rc-bundle -c "${DBPATH}" add "$l" $new_contents
         fi
     done
     new_contents=''
