@@ -11,23 +11,23 @@ bundle_action() {
 }
 
 db_err_msg() {
-    echo "${CMD_UPD}: fatal: unable to take lock on ${DATABASE} Permission denied"
+    echo "${CMD_UPD}: fatal: unable to take lock on ${DATABASE}: Permission denied"
     exit 1
 }
 
 bundle_err_msg() {
-    echo "${BUNDLE} is not an existing bundle. Create it with ${CMD}."
+    echo "'${BUNDLE}' is not an existing bundle. Create it with ${CMD}."
     exit 1
 }
 
 bundle_entry_err_msg() {
     name="$1"
-    echo "$name does not exist in bundle ${BUNDLE}!"
+    echo "'$name' does not exist in bundle '${BUNDLE}'!"
     exit 1
 }
 
 bundle_add_err_msg() {
-    echo "Error when trying to add ${CONTENTS}!"
+    echo "Error when trying to add '${CONTENTS}'!"
 }
 
 cmd_help() {
@@ -152,6 +152,10 @@ for arg in "$@"; do
     fi
     if [ "${BUNDLE}" = "" ]; then
         BUNDLE=$arg
+        continue
+    fi
+    if [ "${CONTENTS}" = "" ]; then
+        CONTENTS=$arg
         continue
     fi
     CONTENTS="${CONTENTS} $arg"
