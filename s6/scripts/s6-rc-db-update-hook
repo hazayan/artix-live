@@ -84,25 +84,28 @@ new_bundles=$(db_action list bundles)
 all_services=$(db_action list all)
 
 while read -r l && read -r old_contents; do
+    CMD='s6-rc-bundle'
+
     a_newbundle "$l"
     ret=$?
 
     for m in $old_contents; do
-
+        # We should handle the service if it exists and either:
+        # [ $ret -eq 1 ] -> the bundle it is in not doesn't exist yet
+        # ! in_newbundle -> it's not in the bundle it used to be in
         if service_exists "$m"; then
-            if [ $ret -eq 1 ]; then
-                # No bundle exists, queue its creation
+            if [ $ret -eq 1 ] || ! in_newbundle "$l" "$m"; then
                 new_contents="$new_contents $m"
-            elif ! in_newbundle "$l" "$m"; then
-                # bundle exists, but service isn't in it, add it
-                s6-rc-bundle-update -c "${DBPATH}" add "$l" "$m"
             fi
         fi
-
-        if [ -n "$new_contents" ]; then
-            s6-rc-bundle -c "${DBPATH}" add "$l" $new_contents
-        fi
     done
+
+    # If bundle exists, we're only going to update it
+    [ $ret -eq 1 ] || CMD="$CMD-update"
+
+    # Add or update bundle
+    [ -z "$new_contents" ] || "$CMD" -c "${DBPATH}" add "$l" $new_contents
+
     new_contents=''
 done <<EOF
 $old_bundle_contents
