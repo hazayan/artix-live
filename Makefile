@@ -62,10 +62,10 @@ install_udev: install_common
 	install $(EMODE) $(UDEVSCRIPTS) $(DESTDIR)$(SCRIPTSDIR)
 	install $(MODE) $(UDEVHOOKS) $(DESTDIR)$(HOOKSDIR)
 
-install_tmpfiles: install_common
+install_tmpfiles: install_hook_common
 	install $(MODE) $(TMPFILESHOOKS) $(DESTDIR)$(HOOKSDIR)
 
-install_sysusers: install_common
+install_sysusers: install_hook_common
 	install $(MODE) $(SYSUSERSHOOKS) $(DESTDIR)$(HOOKSDIR)
 
 install_openrc: install_common
