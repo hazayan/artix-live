@@ -53,9 +53,8 @@ if [ -e "${DBPATH}" ]; then
     # <sv1> ... <svN>
     old_bundle_contents=$(
         for bundle in $(db_action list bundles); do
-	        printf '%s\n' \
-                "$bundle" "$(db_action contents "$bundle" | paste -sd" ")"
-	    done
+            printf '%s\n' "$bundle" "$(db_action contents "$bundle" | paste -sd" ")"
+        done
     )
 fi
 
