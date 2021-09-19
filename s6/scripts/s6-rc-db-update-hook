@@ -42,6 +42,8 @@ in_newbundle() {
 RCPATH='/etc/s6/rc'
 DBPATH="${RCPATH}/compiled"
 SVPATH='/etc/s6/sv'
+USERSVPATH='/etc/s6/usersv'
+BACKUPSVPATH='/etc/s6/backupsv'
 SVDIRS='/run/s6-rc/servicedirs'
 TIMESTAMP=$(date +%s)
 
@@ -58,9 +60,13 @@ if [ -e "${DBPATH}" ]; then
     )
 fi
 
-if ! s6-rc-compile "${DBPATH}"-"${TIMESTAMP}" "${SVPATH}"; then
-    echo "Error compiling database."
-    echo "Please double check the ${SVPATH} directories. Exiting."
+if ! s6-rc-compile "${DBPATH}"-"${TIMESTAMP}" "${SVPATH}" "${USERSVPATH}"; then
+    echo "Error compiling database. Falling back to the system default!"
+    echo "Please double check the ${USERSVPATH} directories."
+    if ! s6-rc-compile "${DBPATH}"-"${TIMESTAMP}" "${SVPATH}" "${BACKUPSVPATH}"; then
+        echo "The system default compilation failed. Something is really wrong with your service directories!"
+        echo "Check your ${SVPATH} and ${BACKUPSVPATH} directories."
+    fi
     exit 1
 fi
 
