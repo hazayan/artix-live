@@ -35,9 +35,10 @@ shutdown_service() {
     if [ -d "$dir" ] && [ "$dir" != "etc/s6/sv/" ]; then
       sv=$(basename "$dir")
       active=$(s6-rc -a list | grep -Fx "$sv" || true)
-      if [ -n $active ]; then
-        s6-rc -d change "$sv"
+      if [ ! "$active" ]; then
+        continue
       fi
+      s6-rc -d change "$sv"
     fi
   done
 }
