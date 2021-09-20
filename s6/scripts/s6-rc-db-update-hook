@@ -43,7 +43,7 @@ RCPATH='/etc/s6/rc'
 DBPATH="${RCPATH}/compiled"
 SVPATH='/etc/s6/sv'
 USERSVPATH='/etc/s6/usersv'
-BACKUPSVPATH='/etc/s6/backupsv'
+FALLBACKSVPATH='/etc/s6/fallbacksv'
 SVDIRS='/run/s6-rc/servicedirs'
 TIMESTAMP=$(date +%s)
 
@@ -61,11 +61,11 @@ if [ -e "${DBPATH}" ]; then
 fi
 
 if ! s6-rc-compile "${DBPATH}"-"${TIMESTAMP}" "${SVPATH}" "${USERSVPATH}"; then
-    echo "Error compiling database. Falling back to the system default!"
+    echo "Error compiling database. Trying the system fallback paths!"
     echo "Please double check the ${USERSVPATH} directories."
-    if ! s6-rc-compile "${DBPATH}"-"${TIMESTAMP}" "${SVPATH}" "${BACKUPSVPATH}"; then
-        echo "The system default compilation failed. Something is really wrong with your service directories!"
-        echo "Check your ${SVPATH} and ${BACKUPSVPATH} directories."
+    if ! s6-rc-compile "${DBPATH}"-"${TIMESTAMP}" "${SVPATH}" "${FALLBACKSVPATH}"; then
+        echo "The system fallback compilation failed. Something is really wrong with your service directories!"
+        echo "Check your ${SVPATH} and ${FALLBACKSVPATH} directories."
     fi
     exit 1
 fi
