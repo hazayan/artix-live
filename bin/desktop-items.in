@@ -28,6 +28,8 @@ if [[ -d /run/openrc ]]; then
     ln -s $docs/OpenRC.pdf "$xdg"/OpenRC.pdf
 elif [[ -d /run/runit ]]; then
     ln -s $docs/Runit.pdf "$xdg"/Runit.pdf
+elif [[ -d /run/66 ]]; then
+    ln -s $docs/Suite66.pdf "$xdg"/Suite66.pdf
 else
     ln -s $docs/S6.pdf "$xdg"/S6.pdf
 fi
