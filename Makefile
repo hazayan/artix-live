@@ -52,6 +52,15 @@ S6_BUNDLE = \
 66_PI = \
 	data/66/pacman-init
 
+DINIT_LIVE = \
+	data/dinit/artix-live
+
+DINIT_PI = \
+	data/dinit/pacman-init
+
+DINIT_PI_SCRIPT = \
+	data/dinit/pacman-init.script
+
 XDG = $(wildcard data/*.desktop)
 
 XBIN = bin/desktop-items
@@ -124,6 +133,15 @@ install_66:
 
 	install $(FMODE) $(66_LIVE) $(DESTDIR)$(SYSCONFDIR)/66/service/artix-live
 	install $(FMODE) $(66_PI) $(DESTDIR)$(SYSCONFDIR)/66/service/pacman-init
+
+install_dinit:
+	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/dinit.d/scripts
+	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/dinit.d/boot.d
+	install $(FMODE) $(DINIT_LIVE) $(DESTDIR)$(SYSCONFDIR)/dinit.d/artix-live
+	install $(FMODE) $(DINIT_PI) $(DESTDIR)$(SYSCONFDIR)/dinit.d/pacman-init
+	install $(BMODE) $(DINIT_PI_SCRIPT) $(DESTDIR)$(SYSCONFDIR)/dinit.d/scripts/pacman-init
+	ln -s ../artix-live $(DESTDIR)$(SYSCONFDIR)/dinit.d/boot.d
+	ln -s ../pacman-init $(DESTDIR)$(SYSCONFDIR)/dinit.d/boot.d
 
 install_xdg:
 	install -dm0755 $(DESTDIR)$(PREFIX)/bin

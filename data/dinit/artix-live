@@ -1,0 +1,4 @@
+type      = scripted
+command   = /usr/bin/artix-live
+restart   = false
+waits-for = setup
