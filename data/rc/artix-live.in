@@ -1,15 +1,17 @@
 #!/usr/bin/openrc-run
 # Copyright 2014 Aaditya Bagga (aaditya_gnulinux@zoho.com)
+# Copyright 2017-2021 The Artix Linux developers
 # Distributed under the terms of the GNU General Public License v2
 
 description="LiveMedia Config Script"
 
 depend() {
     need localmount
+    before lightdm sddm xdm gdm lxdm ly
 }
 
 start() {
-	ebegin "Starting artix live script"
-	/usr/bin/artix-live
-	eend $?
+    ebegin "Starting artix live script"
+    /usr/bin/artix-live
+    eend $?
 }
