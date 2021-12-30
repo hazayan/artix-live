@@ -42,10 +42,6 @@ S6_PI = \
 	data/s6/pacman-init/up \
 	data/s6/pacman-init/down
 
-S6_BUNDLE = \
-	data/s6/live/type \
-	data/s6/live/contents
-
 66_LIVE = \
 	data/66/artix-live
 
@@ -124,9 +120,6 @@ install_s6:
 
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/s6/sv/artix-live
 	install $(BMODE) $(S6_LIVE) $(DESTDIR)$(SYSCONFDIR)/s6/sv/artix-live/
-
-	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/s6/sv/live
-	install $(BMODE) $(S6_BUNDLE) $(DESTDIR)$(SYSCONFDIR)/s6/sv/live/
 
 install_66:
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/66/service
