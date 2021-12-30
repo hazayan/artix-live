@@ -7,7 +7,7 @@ description="LiveMedia Config Script"
 
 depend() {
     need localmount
-    before lightdm sddm xdm gdm lxdm ly
+    before lightdm sddm xdm gdm mdm slim lxdm ly
 }
 
 start() {
