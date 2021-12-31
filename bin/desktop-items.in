@@ -31,7 +31,7 @@ elif [[ -d /run/runit ]]; then
 elif [[ -d /run/66 ]]; then
     ln -s $docs/Suite66.pdf "$xdg"/Suite66.pdf
 elif [[ -d /run/dinit ]]; then
-    ln -s $docs/Dinit.pdf "$xdg"/Suite66.pdf
+    ln -s $docs/Dinit.pdf "$xdg"/Dinit.pdf
 else
     ln -s $docs/S6.pdf "$xdg"/S6.pdf
 fi
