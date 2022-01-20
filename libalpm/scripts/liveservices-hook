@@ -26,11 +26,48 @@ s6_disable_live_services(){
 }
 
 suite66_enable_live_services(){
-    #TODO
+    66-tree -n boot
+    66-tree -ncE default
+    66-enable -t default artix-live pacman-init
+
+    if [ -f /usr/bin/gdm ]; then
+        66-disable -t default logind gdm
+        sed -i -E 's#@depends\s*=\s*\(\s*([^)]+)\s*\)#@depends = ( '\
+    '\1artix-live pacman-init )#' /etc/66/service/gdm
+        66-enable -t default logind gdm
+    elif [ -f /usr/bin/lightdm ]; then
+        66-disable -t default logind lightdm
+        sed -i -E 's#@depends\s*=\s*\(\s*([^)]+)\s*\)#@depends = ( '\
+    '\1artix-live pacman-init )#' /etc/66/service/lightdm
+        66-enable -t default logind lightdm
+    elif [ -f /usr/bin/sddm ]; then
+        66-disable -t default logind sddm
+        sed -i -E 's#@depends\s*=\s*\(\s*([^)]+)\s*\)#@depends = ( '\
+    '\1artix-live pacman-init )#' /etc/66/service/sddm
+        66-enable -t default logind sddm
+    fi
+
+    66-enable -t boot -F boot@system
 }
 
 suite66_disable_live_services(){
-    #TODO
+    66-disable -t default artix-live pacman-init
+
+    if [ -f /usr/bin/gdm ]; then
+        66-disable -t default logind gdm
+        sed -i -E 's# artix-live pacman-init##' /etc/66/service/gdm
+        66-enable -t default logind gdm
+    elif [ -f /usr/bin/lightdm ]; then
+        66-disable -t default logind lightdm
+        sed -i -E 's# artix-live pacman-init##' /etc/66/service/lightdm
+        66-enable -t default logind lightdm
+    elif [ -f /usr/bin/sddm ]; then
+        66-disable -t default logind sddm
+        sed -i -E 's# artix-live pacman-init##' /etc/66/service/sddm
+        66-enable -t default logind sddm
+    fi
+
+    66-enable -t boot -F boot@system
 }
 
 enable_live_services() {
