@@ -1,0 +1,11 @@
+[Trigger]
+Operation = Remove
+Type = Package
+Target = artix-live-s6
+Target = artix-live-suite66
+
+[Action]
+Description = Disabling live services ...
+When = PreTransaction
+Exec = /usr/share/libalpm/scripts/liveservices-hook disable
+NeedsTargets

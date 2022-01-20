@@ -1,0 +1,12 @@
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = artix-live-s6
+Target = artix-live-suite66
+
+[Action]
+Description = Enabling live services ...
+When = PostTransaction
+Exec = /usr/share/libalpm/scripts/liveservices-hook enable
+NeedsTargets

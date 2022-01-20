@@ -1,0 +1,60 @@
+#!/bin/sh -e
+# Only needed for s6 and suite66.
+
+s6_enable_live_services(){
+    if [ -d /etc/s6/sv/gdm/dependencies.d ]; then
+        touch /etc/s6/sv/gdm/dependencies.d/artix-live
+    fi
+    if [ -d /etc/s6/sv/lightdm-srv/dependencies.d ]; then
+        touch /etc/s6/sv/lightdm-srv/dependencies.d/artix-live
+    fi
+    if [ -d /etc/s6/sv/sddm/dependencies.d ]; then
+        touch /etc/s6/sv/sddm/dependencies.d/artix-live
+    fi
+    # TODO: instead touch files under dependencies.d when s6-scripts updates
+    echo "artix-live" >> /etc/s6/sv/default/contents
+    echo "pacman-init" >> /etc/s6/sv/default/contents
+}
+
+s6_disable_live_services(){
+    # TODO: delete files under dependencies.d when s6-scripts updates
+    sed -i '/artix-live/d' /etc/s6/sv/default/contents
+    sed -i '/pacman-init/d' /etc/s6/sv/default/contents
+    rm -f /etc/s6/sv/gdm/dependencies.d/artix-live
+    rm -f /etc/s6/sv/lightdm-srv/dependencies.d/artix-live
+    rm -f /etc/s6/sv/sddm/dependencies.d/artix-live
+}
+
+suite66_enable_live_services(){
+    #TODO
+}
+
+suite66_disable_live_services(){
+    #TODO
+}
+
+enable_live_services() {
+    if [ -f /usr/bin/s6-init ]; then
+        s6_enable_live_services
+    fi
+
+    if [ -f /usr/bin/suite66-init ]; then
+        suite66_enable_live_services
+    fi
+}
+
+disable_live_services() {
+    if [ -f /usr/bin/s6-init ]; then
+        s6_disable_live_services
+    fi
+
+    if [ -f /usr/bin/suite66-init ]; then
+        suite66_disable_live_services
+    fi
+}
+
+case "$1" in
+    enable) enable_live_services ;;
+    disable) disable_live_services ;;
+    *) echo >&2 "  Invalid operation '$1'"; exit 1 ;;
+esac
