@@ -1,4 +1,4 @@
-VERSION = 0.12.2
+VERSION = 0.12.3
 
 PKG = live-services
 TOOLS = artools
