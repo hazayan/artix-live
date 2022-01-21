@@ -11,9 +11,16 @@ DATADIR = $(PREFIX)/share
 SYSUSERSDIR = $(PREFIX)/lib/sysusers.d
 LIVEUSER ?= artix
 
+HOOKSDIR = $(DATADIR)/libalpm/hooks
+SCRIPTSDIR = $(DATADIR)/libalpm/scripts
+
 FMODE = -m0644
 DMODE = -dm0755
 BMODE = -m0755
+
+
+ALPMSCRIPTS = $(wildcard libalpm/scripts/*)
+ALPMHOOKS = $(wildcard libalpm/hooks/*)
 
 BIN = \
 	bin/artix-live
@@ -98,6 +105,12 @@ install_base:
 	install $(DMODE) $(DESTDIR)$(DATADIR)/$(TOOLS)
 	install $(FMODE) $(SHARED) $(DESTDIR)$(DATADIR)/$(TOOLS)
 
+install_alpm:
+	install $(DMODE) $(DESTDIR)$(SCRIPTSDIR)
+	install $(DMODE) $(DESTDIR)$(HOOKSDIR)
+	install $(BMODE) $(ALPMSCRIPTS) $(DESTDIR)$(SCRIPTSDIR)
+	install $(FMODE) $(ALPMHOOKS) $(DESTDIR)$(HOOKSDIR)
+
 install_rc:
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/init.d
 	install $(BMODE) $(RC) $(DESTDIR)$(SYSCONFDIR)/init.d
@@ -112,7 +125,7 @@ install_runit:
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/runit/sv/pacman-init
 	install $(BMODE) $(RUNIT_SV) $(DESTDIR)$(SYSCONFDIR)/runit/sv/pacman-init/run
 
-install_s6:
+install_s6: install_alpm
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/s6/sv
 
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/s6/sv/pacman-init
@@ -121,7 +134,7 @@ install_s6:
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/s6/sv/artix-live
 	install $(BMODE) $(S6_LIVE) $(DESTDIR)$(SYSCONFDIR)/s6/sv/artix-live/
 
-install_66:
+install_66: install_alpm
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/66/service
 
 	install $(FMODE) $(66_LIVE) $(DESTDIR)$(SYSCONFDIR)/66/service/artix-live
