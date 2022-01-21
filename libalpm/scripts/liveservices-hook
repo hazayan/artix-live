@@ -32,18 +32,15 @@ suite66_enable_live_services(){
 
     if [ -f /usr/bin/gdm ]; then
         66-disable -t default logind gdm
-        sed -i -E 's#@depends\s*=\s*\(\s*([^)]+)\s*\)#@depends = ( '\
-    '\1artix-live pacman-init )#' /etc/66/service/gdm
+        sed -i -E 's#@depends\s*=\s*\(\s*([^)]+)\s*\)#@depends = ( \1artix-live pacman-init )#' /etc/66/service/gdm
         66-enable -t default logind gdm
     elif [ -f /usr/bin/lightdm ]; then
         66-disable -t default logind lightdm
-        sed -i -E 's#@depends\s*=\s*\(\s*([^)]+)\s*\)#@depends = ( '\
-    '\1artix-live pacman-init )#' /etc/66/service/lightdm
+        sed -i -E 's#@depends\s*=\s*\(\s*([^)]+)\s*\)#@depends = ( \1artix-live pacman-init )#' /etc/66/service/lightdm
         66-enable -t default logind lightdm
     elif [ -f /usr/bin/sddm ]; then
         66-disable -t default logind sddm
-        sed -i -E 's#@depends\s*=\s*\(\s*([^)]+)\s*\)#@depends = ( '\
-    '\1artix-live pacman-init )#' /etc/66/service/sddm
+        sed -i -E 's#@depends\s*=\s*\(\s*([^)]+)\s*\)#@depends = ( \1artix-live pacman-init )#' /etc/66/service/sddm
         66-enable -t default logind sddm
     fi
 
