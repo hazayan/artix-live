@@ -26,7 +26,8 @@ s6_disable_live_services(){
 }
 
 suite66_enable_live_services(){
-    66-tree -ncE default
+    [ -d /var/lib/66/system/boot ] || 66-tree -n boot
+    [ -d /var/lib/66/system/default ] || 66-tree -ncE default
     66-enable -t default artix-live pacman-init
 
     if [ -f /usr/bin/gdm ]; then
