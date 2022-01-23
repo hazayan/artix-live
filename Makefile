@@ -40,6 +40,10 @@ RUNIT_SVD = \
 RUNIT_SV = \
 	data/runit/pacman-init.run
 
+S6_DEFAULT = \
+	data/s6/default/contents.d/artix-live \
+	data/s6/default/contents.d/pacman-init
+
 S6_LIVE = \
 	data/s6/artix-live/up \
 	data/s6/artix-live/type
@@ -127,12 +131,16 @@ install_runit:
 
 install_s6: install_alpm
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/s6/sv
+	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/s6/adminsv
+
+	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/s6/adminsv/default/contents.d
+	install $(FMODE) $(S6_DEFAULT) $(DESTDIR)$(SYSCONFDIR)/s6/adminsv/default/contents.d/
 
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/s6/sv/pacman-init
-	install $(BMODE) $(S6_PI) $(DESTDIR)$(SYSCONFDIR)/s6/sv/pacman-init/
+	install $(FMODE) $(S6_PI) $(DESTDIR)$(SYSCONFDIR)/s6/sv/pacman-init/
 
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/s6/sv/artix-live
-	install $(BMODE) $(S6_LIVE) $(DESTDIR)$(SYSCONFDIR)/s6/sv/artix-live/
+	install $(FMODE) $(S6_LIVE) $(DESTDIR)$(SYSCONFDIR)/s6/sv/artix-live/
 
 install_66: install_alpm
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/66/service
