@@ -11,15 +11,9 @@ s6_enable_live_services(){
     if [ -d /etc/s6/sv/sddm/dependencies.d ]; then
         touch /etc/s6/sv/sddm/dependencies.d/artix-live
     fi
-    # TODO: instead touch files under dependencies.d when s6-scripts updates
-    echo "artix-live" >> /etc/s6/sv/default/contents
-    echo "pacman-init" >> /etc/s6/sv/default/contents
 }
 
 s6_disable_live_services(){
-    # TODO: delete files under dependencies.d when s6-scripts updates
-    sed -i '/artix-live/d' /etc/s6/sv/default/contents
-    sed -i '/pacman-init/d' /etc/s6/sv/default/contents
     rm -f /etc/s6/sv/gdm/dependencies.d/artix-live
     rm -f /etc/s6/sv/lightdm-srv/dependencies.d/artix-live
     rm -f /etc/s6/sv/sddm/dependencies.d/artix-live
