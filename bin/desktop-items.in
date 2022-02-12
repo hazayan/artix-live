@@ -7,12 +7,12 @@ xdg-user-dirs-update --force
 xdg=$(xdg-user-dir DESKTOP)
 src=@datadir@/applications
 
-# if [[ -f $src/org.kde.konversation.desktop ]]; then
+# if [ -f $src/org.kde.konversation.desktop ]; then
 #     install -m644 $src/org.kde.konversation.desktop \
 #     $xdg/org.kde.konversation.desktop
 # fi
 
-if [[ -f @bindir@/calamares ]]; then
+if [ -f @bindir@/calamares ]; then
     cp -f $src/calamares.desktop "$xdg/"
     sed -i s/Icon.*=calamares/Icon=artixlinux-logo/g "$xdg"/calamares.desktop
     chmod +x "$xdg/calamares.desktop"
@@ -24,13 +24,13 @@ for f in {Configuration,Troubleshooting}.pdf; do
     ln -s $docs/$f "$xdg"/$f
 done
 
-if [[ -d /run/openrc ]]; then
+if [ -d /run/openrc ]; then
     ln -s $docs/OpenRC.pdf "$xdg"/OpenRC.pdf
-elif [[ -d /run/runit ]]; then
+elif [ -d /run/runit ]; then
     ln -s $docs/Runit.pdf "$xdg"/Runit.pdf
-elif [[ -d /run/66 ]]; then
+elif [ -d /run/66 ]; then
     ln -s $docs/Suite66.pdf "$xdg"/Suite66.pdf
-elif [[ -d /run/dinit ]]; then
+elif [ -d /run/dinit ]; then
     ln -s $docs/Dinit.pdf "$xdg"/Dinit.pdf
 else
     ln -s $docs/S6.pdf "$xdg"/S6.pdf
