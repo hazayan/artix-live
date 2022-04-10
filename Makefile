@@ -129,7 +129,7 @@ install_runit:
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/runit/sv/pacman-init
 	install $(BMODE) $(RUNIT_SV) $(DESTDIR)$(SYSCONFDIR)/runit/sv/pacman-init/run
 
-install_s6: install_alpm
+install_s6:
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/s6/sv
 	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/s6/adminsv
 
