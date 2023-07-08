@@ -13,9 +13,11 @@ src=@datadir@/applications
 # fi
 
 if [ -f @bindir@/calamares ]; then
-    cp -f $src/calamares.desktop "$xdg/"
-    sed -i s/Icon.*=calamares/Icon=artixlinux-logo/g "$xdg"/calamares.desktop
-    chmod +x "$xdg/calamares.desktop"
+    installer='calamares.desktop'
+    cp -f $src/$installer "$xdg/"
+    sed -i s/Icon.*=calamares/Icon=artixlinux-logo/g "$xdg"/$installer
+    sed -ir "s|XAUTHCOOKIE|$XAUTHORITY|" "$xdg"/$installer
+    chmod +x "$xdg/$installer"
 fi
 
 docs=@datadir@/doc/artix
