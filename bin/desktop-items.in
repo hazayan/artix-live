@@ -16,7 +16,7 @@ if [ -f @bindir@/calamares ]; then
     installer='calamares.desktop'
     cp -f $src/$installer "$xdg/"
     sed -i s/Icon.*=calamares/Icon=artixlinux-logo/g "$xdg"/$installer
-    sed -ir "s|XAUTHCOOKIE|$XAUTHORITY|" "$xdg"/$installer
+    sed -r -i "s|XAUTHCOOKIE|$XAUTHORITY|" "$xdg"/$installer
     chmod +x "$xdg/$installer"
 fi
 
