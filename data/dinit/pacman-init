@@ -1,5 +1,5 @@
 type         = scripted
-command      = /etc/dinit.d/scripts/pacman-init
+command      = /usr/lib/dinit/pacman-init
 stop-command = /usr/bin/umount -l /etc/pacman.d/gnupg
 restart      = false
 waits-for    = setup

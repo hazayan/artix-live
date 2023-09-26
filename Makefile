@@ -149,13 +149,13 @@ install_66: install_alpm
 	install $(FMODE) $(66_PI) $(DESTDIR)$(SYSCONFDIR)/66/service/pacman-init
 
 install_dinit:
-	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/dinit.d/scripts
-	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/dinit.d/live.d
+	install $(DMODE) $(DESTDIR)$(LIBDIR)/dinit
+	install $(DMODE) $(DESTDIR)$(SYSCONFDIR)/dinit.d/boot.d
 	install $(FMODE) $(DINIT_LIVE) $(DESTDIR)$(SYSCONFDIR)/dinit.d/artix-live
 	install $(FMODE) $(DINIT_PI) $(DESTDIR)$(SYSCONFDIR)/dinit.d/pacman-init
-	install $(BMODE) $(DINIT_PI_SCRIPT) $(DESTDIR)$(SYSCONFDIR)/dinit.d/scripts/pacman-init
-	ln -s ../artix-live $(DESTDIR)$(SYSCONFDIR)/dinit.d/live.d
-	ln -s ../pacman-init $(DESTDIR)$(SYSCONFDIR)/dinit.d/live.d
+	install $(BMODE) $(DINIT_PI_SCRIPT) $(DESTDIR)$(LIBDIR)/dinit/pacman-init
+	ln -s ../artix-live $(DESTDIR)$(SYSCONFDIR)/dinit.d/boot.d
+	ln -s ../pacman-init $(DESTDIR)$(SYSCONFDIR)/dinit.d/boot.d
 
 install_xdg:
 	install -dm0755 $(DESTDIR)$(PREFIX)/bin
