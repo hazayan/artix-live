@@ -5,20 +5,20 @@
 xdg-user-dirs-update --force
 
 xdg=$(xdg-user-dir DESKTOP)
-src=@datadir@/applications
+# src=@datadir@/applications
 
 # if [ -f $src/org.kde.konversation.desktop ]; then
 #     install -m644 $src/org.kde.konversation.desktop \
 #     $xdg/org.kde.konversation.desktop
 # fi
 
-if [ -f @bindir@/calamares ]; then
-    installer='calamares.desktop'
-    cp -f $src/$installer "$xdg/"
-    sed -i s/Icon.*=calamares/Icon=artixlinux-logo/g "$xdg"/$installer
-    sed -r -i "s|XAUTHCOOKIE|$XAUTHORITY|" "$xdg"/$installer
-    chmod +x "$xdg/$installer"
-fi
+# if [ -f @bindir@/calamares ]; then
+#     installer='calamares.desktop'
+#     cp -f $src/$installer "$xdg/"
+#     sed -i s/Icon.*=calamares/Icon=artixlinux-logo/g "$xdg"/$installer
+#     sed -r -i "s|XAUTHCOOKIE|$XAUTHORITY|" "$xdg"/$installer
+#     chmod +x "$xdg/$installer"
+# fi
 
 docs=@datadir@/doc/artix
 
@@ -30,8 +30,6 @@ if [ -d /run/openrc ]; then
     ln -s $docs/OpenRC.pdf "$xdg"/OpenRC.pdf
 elif [ -d /run/runit ]; then
     ln -s $docs/Runit.pdf "$xdg"/Runit.pdf
-elif [ -d /run/66 ]; then
-    ln -s $docs/Suite66.pdf "$xdg"/Suite66.pdf
 elif [ -d /run/dinit ]; then
     ln -s $docs/Dinit.pdf "$xdg"/Dinit.pdf
 else
