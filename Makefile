@@ -1,6 +1,6 @@
-VERSION = 0.13.8
+VERSION = 0.14
 
-PKG = live-services
+PKG = artix-live
 TOOLS = artools
 
 SYSCONFDIR = /etc
@@ -74,6 +74,12 @@ XBIN = bin/desktop-items
 
 SYSUSERS = \
 	data/sysusers
+
+GRUB_CFG = $(wildcard data/grub/cfg/*.cfg)
+
+GRUB_TZ = $(wildcard data/grub/tz/*)
+
+GRUB_LOCALES = $(wildcard data/grub/locales/*)
 
 RM = rm -f
 M4 = m4 -P
@@ -164,6 +170,16 @@ install_xdg:
 	install -dm0755 $(DESTDIR)$(SYSCONFDIR)/skel/.config/autostart
 	install -m0755 ${XDG} $(DESTDIR)$(SYSCONFDIR)/skel/.config/autostart
 
-install: install_base install_rc install_runit install_s6 install_xdg
+install_grub:
+	install $(DMODE) $(DESTDIR)$(PREFIX)/share/grub/cfg
+	install $(FMODE) $(GRUB_CFG) $(DESTDIR)$(PREFIX)/share/grub/cfg
 
-.PHONY: install
+	install $(DMODE) $(DESTDIR)$(PREFIX)/share/grub/tz
+	install $(FMODE) $(GRUB_TZ) $(DESTDIR)$(PREFIX)/share/grub/tz
+
+	install $(DMODE) $(DESTDIR)$(PREFIX)/share/grub/locales
+	install $(FMODE) $(GRUB_LOCALES) $(DESTDIR)$(PREFIX)/share/grub/locales
+
+install: install_base install_rc install_runit install_s6 install_xdg install_grub
+
+.PHONY: install install_base install_rc install_runit install_s6 install_xdg install_grub
