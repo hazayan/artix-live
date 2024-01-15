@@ -70,7 +70,9 @@ DINIT_PI_SCRIPT = \
 
 XDG = $(wildcard data/*.desktop)
 
-XBIN = bin/desktop-items
+XBIN = \
+	bin/desktop-items \
+	bin/calamares-config-switcher
 
 SYSUSERS = \
 	data/sysusers
