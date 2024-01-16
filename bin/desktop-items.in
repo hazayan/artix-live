@@ -1,23 +1,31 @@
 #!/bin/sh
 
+BINDIR=${BINDIR:-@bindir@}
+DATADIR=${DATADIR:-@datadir@}
+
 # Ensure the user directories are created, some DEs (MATE)
 # create them after autostart scripts are run
 xdg-user-dirs-update --force
 
 xdg=$(xdg-user-dir DESKTOP)
-src=@datadir@/applications
+src="${DATADIR}"/applications
 
 # if [ -f $src/org.kde.konversation.desktop ]; then
 #     install -m644 $src/org.kde.konversation.desktop \
 #     $xdg/org.kde.konversation.desktop
 # fi
 
-if [ -f @bindir@/calamares ]; then
-    installer='calamares.desktop'
-    ln -s $src/$installer "$xdg/$installer"
+# if [ -f "${BINDIR}"/calamares ]; then
+#     installer='calamares.desktop'
+#     ln -s $src/$installer "$xdg/$installer"
+# fi
+
+if [ -f "${BINDIR}"/calamares-config-switcher ]; then
+    launcher='calamares-config-switcher.desktop'
+    ln -s "$src/$launcher" "$xdg/$installer"
 fi
 
-docs=@datadir@/doc/artix
+docs="${DATADIR}"/doc/artix
 
 for f in {Configuration,Troubleshooting}.pdf; do
     ln -s $docs/$f "$xdg"/$f
