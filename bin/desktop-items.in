@@ -22,7 +22,7 @@ src="${DATADIR}"/applications
 
 if [ -f "${BINDIR}"/calamares-config-switcher ]; then
     launcher='calamares-config-switcher.desktop'
-    ln -s "$src/$launcher" "$xdg/$installer"
+    ln -s "$src/$launcher" "$xdg/$launcher"
 fi
 
 docs="${DATADIR}"/doc/artix
