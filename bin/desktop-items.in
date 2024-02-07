@@ -20,6 +20,10 @@ src="${DATADIR}"/applications
 #     ln -s $src/$installer "$xdg/$installer"
 # fi
 
+if [ -d /etc/calamares-offline ]; then
+    ln -s /etc/calamares-offline /etc/calamares
+fi
+
 if [ -f "${BINDIR}"/calamares-config-switcher ]; then
     launcher='calamares-config-switcher.desktop'
     ln -s "$src/$launcher" "$xdg/$launcher"
