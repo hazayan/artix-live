@@ -7,7 +7,7 @@ pekwm:pekwm
 enlightenment:enlightenment_start
 Lumina-DE:start-lumina-desktop
 LXDE:lxsession
-plasma:startplasma-x11
+plasmax11:startplasma-x11
 lxqt:lxqt-session
 pantheon:pantheon-session
 budgie-desktop:budgie-desktop
