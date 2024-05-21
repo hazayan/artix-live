@@ -2,4 +2,5 @@ type         = scripted
 command      = /usr/lib/dinit/pacman-init
 stop-command = /usr/bin/umount -l /etc/pacman.d/gnupg
 restart      = false
-waits-for    = setup
+after        = local.target
+before       = login.target

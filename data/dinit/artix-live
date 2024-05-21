@@ -1,4 +1,5 @@
-type      = scripted
-command   = /usr/bin/artix-live
-restart   = false
-waits-for = setup
+type       = scripted
+command    = /usr/bin/artix-live
+restart    = false
+depends-on = local.target
+before     = login.target
